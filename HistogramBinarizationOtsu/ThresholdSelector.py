@@ -1,11 +1,11 @@
 class ThresholdSelector(object):
-    def __init__(self, ax):
-        self.ax = ax
-        self.select_line = ax.axvline(
-            color='lightskyblue',  label="Threshold selector")  # the vert line
+    def __init__(self, subplot):
+        self.subplot = subplot
+        self.select_line = subplot.axvline(
+            color='lightskyblue', label="Threshold selector")  # the vert line
 
         # text location in axes coords
-        self.txt = ax.text(0.95, 0.9, '', transform=ax.transAxes)
+        self.txt = subplot.text(0.95, 0.9, '', transform=subplot.transAxes, color="steelblue")
 
     def mouse_move(self, event):
         if not event.inaxes:
@@ -13,4 +13,4 @@ class ThresholdSelector(object):
         x = int(event.xdata)
         self.select_line.set_xdata(x)
         self.txt.set_text('{}'.format(x))
-        self.ax.figure.canvas.draw()
+        self.subplot.figure.canvas.draw()

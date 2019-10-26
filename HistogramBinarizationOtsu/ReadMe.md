@@ -1,8 +1,10 @@
-# Image binarization using histogram thershold and Otsu algorithm
+# Histogram creator. Image binarizator
+
+Using picked histogram threshold and Otsu algorithm
 
 ## Example of use
 
-![Usage example](usage_example.png)
+![Usage example](usage_example.gif)
 
 ## Launch
 

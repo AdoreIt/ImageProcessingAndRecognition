@@ -53,7 +53,7 @@ def add_image_figure(figure, name, location, image):
 
 if __name__ == "__main__":
     argparser = argparse.ArgumentParser(
-        description='Histogram creator')
+        description='Histogram creator. Image binarizator')
     argparser.add_argument(
         '-i', '--input_image_path',
         type=str,
@@ -70,7 +70,8 @@ if __name__ == "__main__":
     otsu = otsu.otsu()
 
     matplotlib.rcParams['toolbar'] = 'None'
-    figure = plt.figure(constrained_layout=True)
+    figure = plt.figure()
+    figure.canvas.set_window_title('Histogram creator. Image binarizator')
     specs = gridspec.GridSpec(ncols=3, nrows=2, figure=figure)
 
     fig_input_image = add_image_figure(
