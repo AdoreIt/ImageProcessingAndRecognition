@@ -16,7 +16,8 @@ def rgb2grayscale(image):
     b_coeff = 0.11
 
     if len(image.shape) > 2:
-        return np.dot(image[..., :3], [r_coeff, g_coeff, b_coeff]).round().astype(int)
+        return np.dot(image[..., :3],
+                      [r_coeff, g_coeff, b_coeff]).round().astype(int)
     else:
         return image
 
@@ -55,7 +56,8 @@ if __name__ == "__main__":
     argparser = argparse.ArgumentParser(
         description='Histogram creator. Image binarizator')
     argparser.add_argument(
-        '-i', '--input_image_path',
+        '-i',
+        '--input_image_path',
         type=str,
         help="path to input image",
         default="input_image.jpg")
@@ -74,12 +76,12 @@ if __name__ == "__main__":
     figure.canvas.set_window_title('Histogram creator. Image binarizator')
     specs = gridspec.GridSpec(ncols=3, nrows=2, figure=figure)
 
-    fig_input_image = add_image_figure(
-        figure, "Original image", specs[0, 0], gray_image)
-    fig_binary_image = add_image_figure(figure, "Binarized image", specs[
-        0, 1], binarizate(gray_image, 100))
-    fig_otsu_image = add_image_figure(figure, "Otsu image", specs[
-        0, 2], binarizate(gray_image, otsu))
+    fig_input_image = add_image_figure(figure, "Original image", specs[0, 0],
+                                       gray_image)
+    fig_binary_image = add_image_figure(figure, "Binarized image", specs[0, 1],
+                                        binarizate(gray_image, 100))
+    fig_otsu_image = add_image_figure(figure, "Otsu image", specs[0, 2],
+                                      binarizate(gray_image, otsu))
 
     fig_histogram = figure.add_subplot(specs[1, :])
     fig_histogram.set_title("Histogram")
@@ -94,8 +96,9 @@ if __name__ == "__main__":
         if event.inaxes in [fig_histogram]:
             selected_threshold = int(event.xdata)
             binary_line.set_xdata(selected_threshold)
-            fig_binary_image.imshow(binarizate(
-                gray_image, selected_threshold), plt.get_cmap('gray'))
+            fig_binary_image.imshow(
+                binarizate(gray_image, selected_threshold),
+                plt.get_cmap('gray'))
             plt.draw()
 
     figure.canvas.mpl_connect('button_press_event', onclick)
