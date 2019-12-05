@@ -1,16 +1,15 @@
+from PyQt5.QtCore import QPointF
 from PyQt5.QtGui import QImage
 
 
 class StructuralElement():
-    def __init__(self, width, height, anchor):
+    def __init__(self, width, height):
         """
         shape: QImage
         anchor: QPoint
         """
-        self.shape = QImage(width, height, QImage.Format_Mono)
-        self.anchor = anchor
-        self.width = width
-        self.height = height
+        self.image = QImage(width, height, QImage.Format_Mono)
+        self.anchor = QPointF(0, 0)
 
     def pixel(self, x, y):
-        return self.shape.pixel(x, y)
+        return self.image.pixel(x, y)
