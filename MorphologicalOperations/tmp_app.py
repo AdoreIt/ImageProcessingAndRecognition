@@ -17,13 +17,13 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("MorphologicalOperations")
 
     def keyPressEvent(self, e):
-        if e.key() == Qt.Key_Escape:
+        if e.key() == Qt.Key_Escape or e.key() == Qt.Key_Q:
             self.close()
         elif e.key() == Qt.Key_Space:
             self.w.clear()
 
     def onImageChanged(self, str_elem):
-        print("image got")
+        pass
 
 
 if __name__ == "__main__":
