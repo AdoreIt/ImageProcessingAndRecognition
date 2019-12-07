@@ -79,23 +79,14 @@ class  WStructuralElementEditor(QWidget):
     def __window_to_image(self, point):
         image = self.str_elem.image
 
-        max_image_side = max(image.width(), image.height())
-        # min_image_side = min(image.width(), image.height())
-
-        min_window_side = min(self.width(), self.height())
-        # max_window_side = max(self.width(), self.height())
-
-        factor = min_window_side / max_image_side
-        # other_factor = max_window_side / min_image_side
-
         window_aspect = self.width() / self.height()
         image_aspect = image.width() / image.height()
 
         if window_aspect > image_aspect:
-            print("window is wider")
+            factor = self.height() / image.height()
             offset = QPointF(self.width() - image.width() * factor, 0) / 2
         else:
-            print("window is taller")
+            factor = self.width() / image.width()
             offset = QPointF(0, self.height() - image.height() * factor) / 2
 
         return (point - offset) / factor
