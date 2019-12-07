@@ -1,7 +1,10 @@
 from PyQt5.Qt import Qt
 from PyQt5.QtGui import QImage, QPainter
 from PyQt5.QtWidgets import (
-    QMainWindow, QHBoxLayout, QVBoxLayout, QApplication, QWidget, QPushButton, QFileDialog, QLabel, QLineEdit)
+    QMainWindow, QGridLayout, QHBoxLayout, QVBoxLayout, QApplication, QWidget, QPushButton, QFileDialog, QLabel, QLineEdit)
+
+from morphological_operations import *
+from StructuralElementEditor import WStructuralElementEditor
 
 
 def read_image(file_name):
@@ -14,36 +17,45 @@ class MainWindow(QMainWindow):
 
         w = QWidget()
 
-        h_layout = QHBoxLayout()
-
+        g_layout = QGridLayout()
         # input image layout
         input_image_layout, w_in_image = self.createImageLayout()
         self.w_in_image = w_in_image
 
-        select_button = QPushButton("Select")
-        select_button.setMaximumWidth(60)
-        select_button.clicked.connect(self.selectButton)
-
+        # -- buttons
+        select_button = self.createButton("Select", self.selectButton, 60)
         input_image_layout.addWidget(select_button)
 
         # result image layout
         result_image_layout, w_res_image = self.createImageLayout()
         self.w_res_image = w_res_image
 
+        # -- buttons
+        dilation_btn = self.createButton("Dilation", self.selectButton, 60)
+        result_image_layout.addWidget(dilation_btn)
+
+        # structural element layout
         structural_element_layout = self.structuralElementLayout()
 
-        h_layout.addLayout(input_image_layout)
-        h_layout.addLayout(structural_element_layout)
-        h_layout.addLayout(result_image_layout)
+        # add layouts
+        g_layout.addLayout(input_image_layout, 0, 0, 3, 1, Qt.AlignCenter)
+        g_layout.addLayout(structural_element_layout, 1, 1)
+        g_layout.addLayout(result_image_layout, 0, 2, 3, 1, Qt.AlignCenter)
 
         # grid_layout.add
 
-        w.setLayout(h_layout)
-
+        w.setLayout(g_layout)
         self.setCentralWidget(w)
 
-        self.resize(1280, 720)
+        self.w_in_image.setImage("input.png")
+        self.resize(1200, 500)
         self.setWindowTitle("MorphologicalOperations")
+
+    def createButton(self, name, function, max_w=60):
+        button = QPushButton(name)
+        button.setMaximumWidth(max_w)
+        button.clicked.connect(function)
+        return button
 
     def selectButton(self):
         fname = QFileDialog.getOpenFileName(caption='Open image',
@@ -52,7 +64,6 @@ class MainWindow(QMainWindow):
 
     def structuralElementLayout(self):
         v_layout = QVBoxLayout()
-
         h_layout = QHBoxLayout()
 
         # width
@@ -73,17 +84,20 @@ class MainWindow(QMainWindow):
         self.height_edit.setMaximumWidth(50)
         h_layout.addWidget(self.height_edit)
 
-        v_layout.addWidget(WImage())
+        v_layout.addWidget(WStructuralElementEditor())
 
         v_layout.addLayout(h_layout)
-
         return v_layout
+
+    def createStructuralElementLayout(self):
+        v_layout = QVBoxLayout()
+        w_image = WImage()
 
     def createImageLayout(self):
         v_layout = QVBoxLayout()
         # v_layout.insertStretch(0)
         w_image = WImage()
-        w_image.setMinimumSize(200, 200)
+        w_image.setMinimumSize(400, 400)
         v_layout.addWidget(w_image)
         # v_layout.insertStretch(1)
         return v_layout, w_image
