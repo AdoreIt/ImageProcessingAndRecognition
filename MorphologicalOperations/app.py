@@ -40,7 +40,7 @@ class MainWindow(QMainWindow):
 
         # -- Drop Down menu
         c_box = QComboBox()
-        c_box.addItems(["Dilation", "Erosion", "Difference", "Border", "Opening", "Closing"])
+        c_box.addItems(["Dilation", "Erosion", "Border", "Opening", "Closure"])
         c_box.currentTextChanged.connect(self.onMorfOperationChanged)
         self.operation = "Dilation"
         result_image_layout.addWidget(c_box)
@@ -68,14 +68,12 @@ class MainWindow(QMainWindow):
             self.w_res_image.setImage(dilation(self.w_in_image.image, self.structural_element))
         elif self.operation == "Erosion":
             self.w_res_image.setImage(erosion(self.w_in_image.image, self.structural_element))
-        elif self.operation == "Difference":
-            self.w_res_image.setImage(difference(self.w_in_image.image, self.structural_element))
         elif self.operation == "Border":
             self.w_res_image.setImage(border(self.w_in_image.image, self.structural_element))
         elif self.operation == "Opening":
             self.w_res_image.setImage(opening(self.w_in_image.image, self.structural_element))
-        elif self.operation == "Closing":
-            self.w_res_image.setImage(closing(self.w_in_image.image, self.structural_element))
+        elif self.operation == "Closure":
+            self.w_res_image.setImage(closure (self.w_in_image.image, self.structural_element))
 
     def onStructuralElementChanged(self, structural_element):
         self.structural_element = structural_element

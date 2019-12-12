@@ -60,7 +60,7 @@ def erosion(image, structural_element):
     return image_erosion
 
 
-def difference(image_l, image_r):
+def __difference(image_l, image_r):
     """ """
     image_difference = QImage(image_l.size(), QImage.Format_Mono)
     for w in range(image_l.width()):
@@ -74,10 +74,10 @@ def difference(image_l, image_r):
 
 def border(image, structural_element):
     image_erosion = erosion(image, structural_element)
-    return difference(image, image_erosion)
+    return __difference(image, image_erosion)
 
 
-def closing(image, structural_element):
+def closure(image, structural_element):
     return erosion(dilation(image, structural_element), structural_element)
 
 
