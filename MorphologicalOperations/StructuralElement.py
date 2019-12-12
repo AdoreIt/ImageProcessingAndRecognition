@@ -1,4 +1,4 @@
-from PyQt5.QtCore import QPointF
+from PyQt5.QtCore import QPoint
 from PyQt5.QtGui import QImage
 from PyQt5.Qt import Qt
 
@@ -10,7 +10,7 @@ class StructuralElement():
         anchor: QPoint
         """
         self.image = QImage(width, height, QImage.Format_Mono)
-        self.anchor = QPointF(0, 0)
+        self.anchor = QPoint(0, 0)
 
         self.image.fill(Qt.black)
 

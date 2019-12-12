@@ -1,5 +1,5 @@
 from PyQt5.Qt import Qt
-from PyQt5.QtGui import QImage, QPainter
+from PyQt5.QtGui import QImage, QPainter, QPixmap
 from PyQt5.QtWidgets import (
     QMainWindow, QGridLayout, QHBoxLayout, QVBoxLayout, QApplication, QWidget, QPushButton, QFileDialog, QLabel, QLineEdit, QComboBox)
 
@@ -50,7 +50,7 @@ class MainWindow(QMainWindow):
         w.setLayout(g_layout)
         self.setCentralWidget(w)
 
-        self.w_in_image.setImage(self.openImage("input.png"))
+        self.w_in_image.setImage(self.openImage("input_image.jpg"))
         self.resize(1200, 500)
         self.setWindowTitle("MorphologicalOperations")
 
@@ -77,7 +77,8 @@ class MainWindow(QMainWindow):
         self.applyOperation()
 
     def openImage(self, image_path):
-        image = QImage(image_path, "mono")
+        image = QImage(image_path)
+        image.convertTo(QImage.Format_Mono)
         #self.applyOperation()
         return image
 
@@ -143,15 +144,16 @@ class WImage(QWidget):
 
     def setImage(self, image):
         self.image = image
-        print("setImage")
         self.update()
 
     def paintEvent(self, e):
         p = QPainter(self)
-
         p.fillRect(self.rect(), Qt.lightGray)
+
         if self.image is not None:
-            p.drawImage(0, 0, self.image)
+            pixmap = QPixmap.fromImage(self.image)
+            pixmap = pixmap.scaled(self.width(), self.height(), Qt.KeepAspectRatio)
+            p.drawPixmap(self.rect().center() - pixmap.rect().center(), pixmap)
 
 
 if __name__ == '__main__':

@@ -4,6 +4,7 @@ from PyQt5.QtGui import QPainter, QPen, QPixmap, QColor
 from PyQt5.QtWidgets import QWidget
 
 from enum import Enum
+import math
 
 from StructuralElement import StructuralElement
 
@@ -19,8 +20,8 @@ class EPreset(Enum):
     TRIANGLE = 4
 
 
-DEFAULT_W = 10
-DEFAULT_H = 10
+DEFAULT_W = 3
+DEFAULT_H = 3
 
 
 class WStructuralElementEditor(QWidget):
@@ -51,13 +52,18 @@ class WStructuralElementEditor(QWidget):
     # events
 
     def mousePressEvent(self, e):
-        self.draw_color = BLACK if self.last_pos is None or self.str_elem.image.pixel(
-            self.last_pos) != BLACK else WHITE
-
         pos = self.__window_to_image(e.pos())
-        if self.last_pos is not None and pos is not None and e.buttons() == Qt.LeftButton:
-            self.__draw_line(self.last_pos, pos, self.draw_color)
-        self.last_pos = pos
+
+        if e.buttons() == Qt.LeftButton:
+            self.draw_color = BLACK if self.last_pos is None or self.str_elem.image.pixel(
+                self.last_pos) != BLACK else WHITE
+
+            if self.last_pos is not None and pos is not None and e.buttons() == Qt.LeftButton:
+                self.__draw_line(self.last_pos, pos, self.draw_color)
+            self.last_pos = pos
+        elif e.buttons() == Qt.RightButton:
+            if self.last_pos is not None:
+                self.__set_anchor(pos)
 
         self.update()
 
@@ -80,13 +86,22 @@ class WStructuralElementEditor(QWidget):
 
         pixmap = QPixmap.fromImage(self.str_elem.image)
 
-        if self.last_pos is not None and self.str_elem.image.pixel(self.last_pos) != BLACK:
+        if self.last_pos is not None:
             with QPainter(pixmap) as pix_painter:
-                pix_painter.setPen(QPen(QColor(200, 200, 200)))
+                color = QColor(200, 200, 200) if self.str_elem.image.pixel(self.last_pos) != BLACK else QColor(80, 80, 80)
+                pix_painter.setPen(QPen(color))
                 pix_painter.drawPoint(self.last_pos)
 
         pixmap = pixmap.scaled(self.width(), self.height(), Qt.KeepAspectRatio)
         p.drawPixmap(self.rect().center() - pixmap.rect().center(), pixmap)
+
+        win_pos, factor = self.__image_to_window(self.str_elem.anchor)
+        anchor_color = QColor(Qt.white) if self.str_elem.image.pixel(self.str_elem.anchor) == BLACK else QColor(Qt.black)
+        p.setPen(QPen(anchor_color, 2))
+        cross_side = factor / 2 / 2
+        p.translate(factor / 2, factor / 2)
+        p.drawLine(win_pos - QPoint(cross_side, cross_side), win_pos + QPoint(cross_side, cross_side))
+        p.drawLine(win_pos - QPoint(cross_side, -cross_side), win_pos + QPoint(cross_side, -cross_side))
 
     # private methods
 
@@ -94,7 +109,7 @@ class WStructuralElementEditor(QWidget):
         self.update()
         self.on_structural_element_changed.emit(self.str_elem)
 
-    def __window_to_image(self, point):
+    def __calc_factor_and_offset(self):
         image = self.str_elem.image
 
         window_aspect = self.width() / self.height()
@@ -107,10 +122,26 @@ class WStructuralElementEditor(QWidget):
             factor = self.width() / image.width()
             offset = QPointF(0, self.height() - image.height() * factor) / 2
 
+        return factor, offset
+
+    def __image_to_window(self, point):
+        factor, offset = self.__calc_factor_and_offset()
+        return factor * point + offset, factor
+
+    def __window_to_image(self, point):
+        image = self.str_elem.image
+
+        factor, offset = self.__calc_factor_and_offset()
+
         res = (point - offset) / factor
-        res = QPoint(int(res.x()), int(res.y()))
+        res = QPoint(math.floor(res.x()), math.floor(res.y()))
 
         return res if image.rect().contains(res) else None
+
+    def __set_anchor(self, pos):
+        self.str_elem.anchor = pos
+
+        self.__send()
 
     def __draw_line(self, a, b, color):
         p = QPainter(self.str_elem.image)

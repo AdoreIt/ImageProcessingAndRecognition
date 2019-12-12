@@ -4,10 +4,9 @@ from PyQt5.QtGui import QImage
 BLACK = qRgb(0, 0, 0) # 0
 WHITE = qRgb(255, 255, 255) # 1
 
-
 def getImagePosition(im_x, im_y, structural_element, x_shift, y_shift):
-    x = im_x - structural_element.anchor.x + x_shift
-    y = im_y - structural_element.anchor.y + y_shift
+    x = im_x - structural_element.anchor.x() + x_shift
+    y = im_y - structural_element.anchor.y() + y_shift
     return x, y
 
 
@@ -40,13 +39,12 @@ def dilation(image, structural_element):
     structural_element: QImage
     """
     image_dilation = image.copy()
-    for w in range(image.size().width()):
-        for h in range(image.size().height()):
+    for w in range(image.width()):
+        for h in range(image.height()):
             if image.pixel(w, h) == BLACK:
                 dilate(image, w, h, structural_element, image_dilation)
 
     return image_dilation
-
 
 def erosion(image, structural_element):
     """
@@ -54,10 +52,10 @@ def erosion(image, structural_element):
     structural_element: QImage
     """
     image_erosion = image.copy()
-    for w in range(image.size().width()):
-        for h in range(image.size().height()):
+    for w in range(image.width()):
+        for h in range(image.height()):
             if not isSame(image, w, h, structural_element):
-                image_erosion.setPixel(w, h, 1)
+                image_erosion.setPixel(w, h, 0)
 
     return image_erosion
 
@@ -65,8 +63,8 @@ def erosion(image, structural_element):
 def difference(image_l, image_r):
     """ """
     image_difference = QImage(image_l.size(), QImage.Format_Mono)
-    for w in range(image_l.size().width()):
-        for h in range(image_l.size().height()):
+    for w in range(image_l.width()):
+        for h in range(image_l.height()):
             if image_l.pixel(w, h) == BLACK and image_r.pixel(w, h) == WHITE:
                 image_difference.setPixel(w, h, 0)
             else:
