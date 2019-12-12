@@ -1,7 +1,7 @@
 from PyQt5.Qt import Qt
 from PyQt5.QtGui import QImage, QPainter, QPixmap
 from PyQt5.QtWidgets import (
-    QMainWindow, QGridLayout, QHBoxLayout, QVBoxLayout, QApplication, QWidget, QPushButton, QFileDialog, QLabel, QLineEdit, QComboBox)
+    QMainWindow, QGridLayout, QHBoxLayout, QVBoxLayout, QApplication, QWidget, QPushButton, QFileDialog, QLabel, QLineEdit, QComboBox, QSizePolicy)
 
 from morphological_operations import *
 from StructuralElementEditor import WStructuralElementEditor
@@ -15,19 +15,27 @@ class MainWindow(QMainWindow):
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
 
+        self.setMinimumSize(1000, 500)
+
         w = QWidget()
 
-        g_layout = QGridLayout()
+        g_layout = QHBoxLayout()
+        g_layout.setContentsMargins(50, 0, 50, 0)
         # input image layout
         input_image_layout, w_in_image = self.createImageLayout()
+        w_in_image.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        w_in_image.setMinimumSize(200, 200)
         self.w_in_image = w_in_image
 
         # -- buttons
         select_button = self.createButton("Select", self.selectButton, 60)
         input_image_layout.addWidget(select_button)
+        input_image_layout.addStretch(1)
 
         # result image layout
         result_image_layout, w_res_image = self.createImageLayout()
+        w_res_image.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        w_res_image.setMinimumSize(200, 200)
         self.w_res_image = w_res_image
 
         # -- Drop Down menu
@@ -36,14 +44,15 @@ class MainWindow(QMainWindow):
         c_box.currentTextChanged.connect(self.onMorfOperationChanged)
         self.operation = "Dilation"
         result_image_layout.addWidget(c_box)
+        result_image_layout.addStretch(1)
 
         # structural element layout
         structural_element_layout = self.structuralElementLayout()
 
         # add layouts
-        g_layout.addLayout(input_image_layout, 0, 0, 3, 1, Qt.AlignCenter)
-        g_layout.addLayout(structural_element_layout, 1, 1)
-        g_layout.addLayout(result_image_layout, 0, 2, 3, 1, Qt.AlignCenter)
+        g_layout.addLayout(input_image_layout, 2)
+        g_layout.addLayout(structural_element_layout, 1)
+        g_layout.addLayout(result_image_layout, 2)
 
         # grid_layout.add
 
@@ -115,11 +124,15 @@ class MainWindow(QMainWindow):
         self.height_edit.setMaximumWidth(50)
         h_layout.addWidget(self.height_edit)
 
+        v_layout.addStretch()
         w_struct_el = WStructuralElementEditor()
         w_struct_el.onStructuralElementChanged.connect(self.onStructuralElementChanged)
         v_layout.addWidget(w_struct_el)
+        w_struct_el.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        w_struct_el.setMinimumSize(200, 200)
 
         v_layout.addLayout(h_layout)
+        v_layout.addStretch()
         return v_layout
 
     def createStructuralElementLayout(self):
@@ -128,12 +141,16 @@ class MainWindow(QMainWindow):
 
     def createImageLayout(self):
         v_layout = QVBoxLayout()
-        # v_layout.insertStretch(0)
+        v_layout.addStretch(1)
         w_image = WImage()
-        w_image.setMinimumSize(400, 400)
-        v_layout.addWidget(w_image)
-        # v_layout.insertStretch(1)
+        v_layout.addWidget(w_image, 5)
         return v_layout, w_image
+
+    def keyPressEvent(self, e):
+        if e.key() == Qt.Key_Escape or e.key() == Qt.Key_Q:
+            self.close()
+        elif e.key() == Qt.Key_Space:
+            self.w.clear()
 
 
 class WImage(QWidget):
