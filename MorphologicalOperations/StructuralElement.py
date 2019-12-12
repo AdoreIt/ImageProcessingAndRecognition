@@ -16,3 +16,9 @@ class StructuralElement():
 
     def pixel(self, x, y):
         return self.image.pixel(x, y)
+
+    def width(self):
+        return self.image.width()
+
+    def height(self):
+        return self.image.height()

@@ -23,12 +23,12 @@ DEFAULT_W = 10
 DEFAULT_H = 10
 
 
-class  WStructuralElementEditor(QWidget):
-    ### signals
+class WStructuralElementEditor(QWidget):
+    # signals
 
-    on_image_changed = pyqtSignal(StructuralElement, name="onImageChanged")
+    on_structural_element_changed = pyqtSignal(StructuralElement, name="onStructuralElementChanged")
 
-    ### methods
+    # methods
 
     def __init__(self, parent=None):
         super(QWidget, self).__init__(parent)
@@ -48,10 +48,11 @@ class  WStructuralElementEditor(QWidget):
         self.str_elem = StructuralElement(w, h)
         self.__send()
 
-    ### events
+    # events
 
     def mousePressEvent(self, e):
-        self.draw_color = BLACK if self.str_elem.image.pixel(self.last_pos) != BLACK else WHITE
+        self.draw_color = BLACK if self.last_pos is None or self.str_elem.image.pixel(
+            self.last_pos) != BLACK else WHITE
 
         pos = self.__window_to_image(e.pos())
         if self.last_pos is not None and pos is not None and e.buttons() == Qt.LeftButton:
@@ -87,11 +88,11 @@ class  WStructuralElementEditor(QWidget):
         pixmap = pixmap.scaled(self.width(), self.height(), Qt.KeepAspectRatio)
         p.drawPixmap(self.rect().center() - pixmap.rect().center(), pixmap)
 
-    ### private methods
+    # private methods
 
     def __send(self):
         self.update()
-        self.on_image_changed.emit(self.str_elem)
+        self.on_structural_element_changed.emit(self.str_elem)
 
     def __window_to_image(self, point):
         image = self.str_elem.image

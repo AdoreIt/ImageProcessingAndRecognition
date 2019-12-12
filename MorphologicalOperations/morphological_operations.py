@@ -12,8 +12,8 @@ def getImagePosition(im_x, im_y, structural_element, x_shift, y_shift):
 
 
 def isSame(image, im_x, im_y, structural_element):
-    for w in range(structural_element.width):
-        for h in range(structural_element.height):
+    for w in range(structural_element.width()):
+        for h in range(structural_element.height()):
             x, y = getImagePosition(im_x, im_y, structural_element, w, h)
             if image.pixel(x, y) != structural_element.pixel(w, h):
                 return False
@@ -27,8 +27,8 @@ def dilate(image, im_x, im_y, structural_element, out_image):
     structural_element: StructuralElement
     out_image (copy of image): QImage
     """
-    for w in range(structural_element.width):
-        for h in range(structural_element.height):
+    for w in range(structural_element.width()):
+        for h in range(structural_element.height()):
             if structural_element.pixel(w, h) == BLACK:
                 x, y = getImagePosition(im_x, im_y, structural_element, w, h)
                 out_image.setPixel(x, y, 1)

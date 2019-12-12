@@ -1,7 +1,7 @@
 from PyQt5.Qt import Qt
 from PyQt5.QtGui import QImage, QPainter
 from PyQt5.QtWidgets import (
-    QMainWindow, QGridLayout, QHBoxLayout, QVBoxLayout, QApplication, QWidget, QPushButton, QFileDialog, QLabel, QLineEdit)
+    QMainWindow, QGridLayout, QHBoxLayout, QVBoxLayout, QApplication, QWidget, QPushButton, QFileDialog, QLabel, QLineEdit, QComboBox)
 
 from morphological_operations import *
 from StructuralElementEditor import WStructuralElementEditor
@@ -30,9 +30,12 @@ class MainWindow(QMainWindow):
         result_image_layout, w_res_image = self.createImageLayout()
         self.w_res_image = w_res_image
 
-        # -- buttons
-        dilation_btn = self.createButton("Dilation", self.selectButton, 60)
-        result_image_layout.addWidget(dilation_btn)
+        # -- Drop Down menu
+        c_box = QComboBox()
+        c_box.addItems(["Dilation", "Erosion", "Difference", "Border", "Opening", "Closing"])
+        c_box.currentTextChanged.connect(self.onMorfOperationChanged)
+        self.operation = "Dilation"
+        result_image_layout.addWidget(c_box)
 
         # structural element layout
         structural_element_layout = self.structuralElementLayout()
@@ -47,9 +50,36 @@ class MainWindow(QMainWindow):
         w.setLayout(g_layout)
         self.setCentralWidget(w)
 
-        self.w_in_image.setImage("input.png")
+        self.w_in_image.setImage(self.openImage("input.png"))
         self.resize(1200, 500)
         self.setWindowTitle("MorphologicalOperations")
+
+    def applyOperation(self):
+        if self.operation == "Dilation":
+            self.w_res_image.setImage(dilation(self.w_in_image.image, self.structural_element))
+        elif self.operation == "Erosion":
+            self.w_res_image.setImage(erosion(self.w_in_image.image, self.structural_element))
+        elif self.operation == "Difference":
+            self.w_res_image.setImage(difference(self.w_in_image.image, self.structural_element))
+        elif self.operation == "Border":
+            self.w_res_image.setImage(border(self.w_in_image.image, self.structural_element))
+        elif self.operation == "Opening":
+            self.w_res_image.setImage(opening(self.w_in_image.image, self.structural_element))
+        elif self.operation == "Closing":
+            self.w_res_image.setImage(closing(self.w_in_image.image, self.structural_element))
+
+    def onStructuralElementChanged(self, structural_element):
+        self.structural_element = structural_element
+        self.applyOperation()
+
+    def onMorfOperationChanged(self, operation):
+        self.operation = operation
+        self.applyOperation()
+
+    def openImage(self, image_path):
+        image = QImage(image_path, "mono")
+        #self.applyOperation()
+        return image
 
     def createButton(self, name, function, max_w=60):
         button = QPushButton(name)
@@ -60,7 +90,7 @@ class MainWindow(QMainWindow):
     def selectButton(self):
         fname = QFileDialog.getOpenFileName(caption='Open image',
                                             filter="Image files (*.jpg *.png)")
-        self.w_in_image.setImage(fname[0])
+        self.w_in_image.setImage(self.openImage(fname[0]))
 
     def structuralElementLayout(self):
         v_layout = QVBoxLayout()
@@ -84,7 +114,9 @@ class MainWindow(QMainWindow):
         self.height_edit.setMaximumWidth(50)
         h_layout.addWidget(self.height_edit)
 
-        v_layout.addWidget(WStructuralElementEditor())
+        w_struct_el = WStructuralElementEditor()
+        w_struct_el.onStructuralElementChanged.connect(self.onStructuralElementChanged)
+        v_layout.addWidget(w_struct_el)
 
         v_layout.addLayout(h_layout)
         return v_layout
@@ -109,8 +141,9 @@ class WImage(QWidget):
 
         self.image = None
 
-    def setImage(self, image_fname):
-        self.image = QImage(image_fname, "mono")
+    def setImage(self, image):
+        self.image = image
+        print("setImage")
         self.update()
 
     def paintEvent(self, e):
