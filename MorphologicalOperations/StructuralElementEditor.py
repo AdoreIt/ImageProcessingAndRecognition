@@ -1,6 +1,6 @@
 from PyQt5.Qt import Qt, qRgb
-from PyQt5.QtCore import pyqtSignal, QPointF, QPoint
-from PyQt5.QtGui import QPainter, QPen, QPixmap, QColor
+from PyQt5.QtCore import pyqtSignal, QPointF, QPoint, QRect
+from PyQt5.QtGui import QPainter, QPen, QPixmap, QColor, QPainterPath
 from PyQt5.QtWidgets import QWidget
 
 from enum import Enum
@@ -13,21 +13,21 @@ WHITE = qRgb(255, 255, 255)
 
 
 class EPreset(Enum):
-    EMPTY = 0
     FILLED = 1
     SQUARE = 2
     CIRCLE = 3
     TRIANGLE = 4
 
 
-DEFAULT_W = 3
-DEFAULT_H = 3
+DEFAULT_W = 10
+DEFAULT_H = 10
 
 
 class WStructuralElementEditor(QWidget):
     # signals
 
-    on_structural_element_changed = pyqtSignal(StructuralElement, name="onStructuralElementChanged")
+    on_structural_element_changed = pyqtSignal(
+        StructuralElement, name="onStructuralElementChanged")
 
     # methods
 
@@ -39,10 +39,47 @@ class WStructuralElementEditor(QWidget):
         self.str_elem = StructuralElement(DEFAULT_W, DEFAULT_H)
         self.last_pos = None
 
+    def calcRectDims(self):
+        size = min(self.str_elem.width(), self.str_elem.height())
+        x = (self.str_elem.width() - size) / \
+            2 if self.str_elem.width() > self.str_elem.height() else 0
+        y = (self.str_elem.height() - size) / \
+            2 if self.str_elem.width() < self.str_elem.height() else 0
+
+        return x, y, size
+
     def setPreset(self, preset):
-        self.clear()
+        self.str_elem.image.fill(WHITE)
+
+        if preset == EPreset.FILLED:
+            self.str_elem.image.fill(BLACK)
+        elif preset == EPreset.SQUARE:
+            p = QPainter(self.str_elem.image)
+            p.setPen(QColor.fromRgb(BLACK))
+            x, y, size = self.calcRectDims()
+            p.fillRect(QRect(x, y, size, size), QColor(BLACK))
+
+        elif preset == EPreset.CIRCLE:
+            p = QPainter(self.str_elem.image)
+            path = QPainterPath()
+            x, y, size = self.calcRectDims()
+            path.addEllipse(x, y, size, size)
+            p.fillPath(path, QColor.fromRgb(BLACK))
+
+        elif preset == EPreset.TRIANGLE:
+            p = QPainter(self.str_elem.image)
+            path = QPainterPath()
+            x, y, size = self.calcRectDims()
+            path.moveTo(x+size/2, y)
+            path.lineTo(x+size, y+size)
+            path.lineTo(x, y+size)
+            path.closeSubpath()
+            p.fillPath(path, QColor.fromRgb(BLACK))
+
+        self.__send()
 
     def clear(self):
+        self.str_elem.image.fill(WHITE)
         self.__send()
 
     def setSize(self, w, h):
@@ -88,7 +125,8 @@ class WStructuralElementEditor(QWidget):
 
         if self.last_pos is not None:
             with QPainter(pixmap) as pix_painter:
-                color = QColor(200, 200, 200) if self.str_elem.image.pixel(self.last_pos) != BLACK else QColor(80, 80, 80)
+                color = QColor(200, 200, 200) if self.str_elem.image.pixel(
+                    self.last_pos) != BLACK else QColor(80, 80, 80)
                 pix_painter.setPen(QPen(color))
                 pix_painter.drawPoint(self.last_pos)
 
@@ -96,12 +134,15 @@ class WStructuralElementEditor(QWidget):
         p.drawPixmap(self.rect().center() - pixmap.rect().center(), pixmap)
 
         win_pos, factor = self.__image_to_window(self.str_elem.anchor)
-        anchor_color = QColor(Qt.white) if self.str_elem.image.pixel(self.str_elem.anchor) == BLACK else QColor(Qt.black)
+        anchor_color = QColor(Qt.white) if self.str_elem.image.pixel(
+            self.str_elem.anchor) == BLACK else QColor(Qt.black)
         p.setPen(QPen(anchor_color, 2))
         cross_side = factor / 2 / 2
         p.translate(factor / 2, factor / 2)
-        p.drawLine(win_pos - QPoint(cross_side, cross_side), win_pos + QPoint(cross_side, cross_side))
-        p.drawLine(win_pos - QPoint(cross_side, -cross_side), win_pos + QPoint(cross_side, -cross_side))
+        p.drawLine(win_pos - QPoint(cross_side, cross_side),
+                   win_pos + QPoint(cross_side, cross_side))
+        p.drawLine(win_pos - QPoint(cross_side, -cross_side),
+                   win_pos + QPoint(cross_side, -cross_side))
 
     # private methods
 

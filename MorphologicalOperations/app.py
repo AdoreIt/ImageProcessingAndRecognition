@@ -1,10 +1,10 @@
 from PyQt5.Qt import Qt
-from PyQt5.QtGui import QImage, QPainter, QPixmap
+from PyQt5.QtGui import QImage, QPainter, QPixmap, QIntValidator
 from PyQt5.QtWidgets import (
     QMainWindow, QGridLayout, QHBoxLayout, QVBoxLayout, QApplication, QWidget, QPushButton, QFileDialog, QLabel, QLineEdit, QComboBox, QSizePolicy)
 
 from morphological_operations import *
-from StructuralElementEditor import WStructuralElementEditor
+from StructuralElementEditor import *
 
 
 def read_image(file_name):
@@ -41,7 +41,7 @@ class MainWindow(QMainWindow):
         # -- Drop Down menu
         c_box = QComboBox()
         c_box.addItems(["Dilation", "Erosion", "Border", "Opening", "Closure"])
-        c_box.currentTextChanged.connect(self.onMorfOperationChanged)
+        c_box.activated[str].connect(self.onMorfOperationChanged)
         self.operation = "Dilation"
         result_image_layout.addWidget(c_box)
         result_image_layout.addStretch(1)
@@ -63,17 +63,38 @@ class MainWindow(QMainWindow):
         self.resize(1200, 500)
         self.setWindowTitle("MorphologicalOperations")
 
+        self.w_struct_el.clear()
+
+    def applyPreset(self, preset):
+        if preset == "Filled":
+            self.w_struct_el.setPreset(EPreset.FILLED)
+        elif preset == "Square":
+            self.w_struct_el.setPreset(EPreset.SQUARE)
+        elif preset == "Circle":
+            self.w_struct_el.setPreset(EPreset.CIRCLE)
+        elif preset == "Triangle":
+            self.w_struct_el.setPreset(EPreset.TRIANGLE)
+
+    def structuralElementSetSize(self):
+        self.w_struct_el.setSize(
+            int(self.width_edit.text()), int(self.height_edit.text()))
+
     def applyOperation(self):
         if self.operation == "Dilation":
-            self.w_res_image.setImage(dilation(self.w_in_image.image, self.structural_element))
+            self.w_res_image.setImage(
+                dilation(self.w_in_image.image, self.structural_element))
         elif self.operation == "Erosion":
-            self.w_res_image.setImage(erosion(self.w_in_image.image, self.structural_element))
+            self.w_res_image.setImage(
+                erosion(self.w_in_image.image, self.structural_element))
         elif self.operation == "Border":
-            self.w_res_image.setImage(border(self.w_in_image.image, self.structural_element))
+            self.w_res_image.setImage(
+                border(self.w_in_image.image, self.structural_element))
         elif self.operation == "Opening":
-            self.w_res_image.setImage(opening(self.w_in_image.image, self.structural_element))
+            self.w_res_image.setImage(
+                opening(self.w_in_image.image, self.structural_element))
         elif self.operation == "Closure":
-            self.w_res_image.setImage(closure (self.w_in_image.image, self.structural_element))
+            self.w_res_image.setImage(
+                closure(self.w_in_image.image, self.structural_element))
 
     def onStructuralElementChanged(self, structural_element):
         self.structural_element = structural_element
@@ -86,7 +107,6 @@ class MainWindow(QMainWindow):
     def openImage(self, image_path):
         image = QImage(image_path)
         image.convertTo(QImage.Format_Mono)
-        #self.applyOperation()
         return image
 
     def createButton(self, name, function, max_w=60):
@@ -99,6 +119,7 @@ class MainWindow(QMainWindow):
         fname = QFileDialog.getOpenFileName(caption='Open image',
                                             filter="Image files (*.jpg *.png)")
         self.w_in_image.setImage(self.openImage(fname[0]))
+        self.applyOperation()
 
     def structuralElementLayout(self):
         v_layout = QVBoxLayout()
@@ -109,7 +130,9 @@ class MainWindow(QMainWindow):
         label_w.setMaximumWidth(40)
         h_layout.addWidget(label_w)
 
-        self.width_edit = QLineEdit()
+        self.width_edit = QLineEdit(str(DEFAULT_W))
+        self.width_edit.setValidator(QIntValidator(1, 99))
+        self.width_edit.returnPressed.connect(self.structuralElementSetSize)
         self.width_edit.setMaximumWidth(50)
         h_layout.addWidget(self.width_edit)
 
@@ -118,18 +141,32 @@ class MainWindow(QMainWindow):
         label_w.setMaximumWidth(45)
         h_layout.addWidget(label_w)
 
-        self.height_edit = QLineEdit()
+        self.height_edit = QLineEdit(str(DEFAULT_H))
+        self.height_edit.setValidator(QIntValidator(1, 99))
+        self.height_edit.returnPressed.connect(self.structuralElementSetSize)
         self.height_edit.setMaximumWidth(50)
         h_layout.addWidget(self.height_edit)
 
         v_layout.addStretch()
-        w_struct_el = WStructuralElementEditor()
-        w_struct_el.onStructuralElementChanged.connect(self.onStructuralElementChanged)
-        v_layout.addWidget(w_struct_el)
-        w_struct_el.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        w_struct_el.setMinimumSize(200, 200)
+        self.w_struct_el = WStructuralElementEditor()
+        self.w_struct_el.onStructuralElementChanged.connect(
+            self.onStructuralElementChanged)
+        v_layout.addWidget(self.w_struct_el)
+        self.w_struct_el.setSizePolicy(
+            QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.w_struct_el.setMinimumSize(200, 200)
+
+        h_btns_layout = QHBoxLayout()
+        c_se_box = QComboBox()
+        c_se_box.addItems(["Select preset", "Filled",
+                           "Square", "Circle", "Triangle"])
+        c_se_box.activated[str].connect(self.applyPreset)
+        self.clear_btn = self.createButton("Clear", self.w_struct_el.clear, 60)
+        h_btns_layout.addWidget(c_se_box)
+        h_btns_layout.addWidget(self.clear_btn)
 
         v_layout.addLayout(h_layout)
+        v_layout.addLayout(h_btns_layout)
         v_layout.addStretch()
         return v_layout
 
@@ -145,10 +182,8 @@ class MainWindow(QMainWindow):
         return v_layout, w_image
 
     def keyPressEvent(self, e):
-        if e.key() == Qt.Key_Escape or e.key() == Qt.Key_Q:
+        if e.key() == Qt.Key_Escape:
             self.close()
-        elif e.key() == Qt.Key_Space:
-            self.w.clear()
 
 
 class WImage(QWidget):
@@ -167,7 +202,8 @@ class WImage(QWidget):
 
         if self.image is not None:
             pixmap = QPixmap.fromImage(self.image)
-            pixmap = pixmap.scaled(self.width(), self.height(), Qt.KeepAspectRatio)
+            pixmap = pixmap.scaled(
+                self.width(), self.height(), Qt.KeepAspectRatio)
             p.drawPixmap(self.rect().center() - pixmap.rect().center(), pixmap)
 
 
