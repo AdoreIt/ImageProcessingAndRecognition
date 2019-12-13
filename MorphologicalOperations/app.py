@@ -118,8 +118,9 @@ class MainWindow(QMainWindow):
     def selectButton(self):
         fname = QFileDialog.getOpenFileName(caption='Open image',
                                             filter="Image files (*.jpg *.png)")
-        self.w_in_image.setImage(self.openImage(fname[0]))
-        self.applyOperation()
+        if fname[0]:
+            self.w_in_image.setImage(self.openImage(fname[0]))
+            self.applyOperation()
 
     def structuralElementLayout(self):
         v_layout = QVBoxLayout()
