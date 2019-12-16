@@ -40,7 +40,8 @@ class MainWindow(QMainWindow):
 
         # -- Drop Down menu
         c_box = QComboBox()
-        c_box.addItems(["Dilation", "Erosion", "Border", "Opening", "Closure"])
+        c_box.addItems(
+            ["Dilation", "Erosion", "Border", "Opening", "Closure"])
         c_box.activated[str].connect(self.onMorfOperationChanged)
         self.operation = "Dilation"
         result_image_layout.addWidget(c_box)
@@ -104,6 +105,10 @@ class MainWindow(QMainWindow):
         self.operation = operation
         self.applyOperation()
 
+    def onClearButtonClicked(self):
+        self.w_struct_el.clear()
+        self.c_se_box.setCurrentText("Select preset")
+
     def openImage(self, image_path):
         image = QImage(image_path)
         image.convertTo(QImage.Format_Mono)
@@ -158,12 +163,13 @@ class MainWindow(QMainWindow):
         self.w_struct_el.setMinimumSize(200, 200)
 
         h_btns_layout = QHBoxLayout()
-        c_se_box = QComboBox()
-        c_se_box.addItems(["Select preset", "Filled",
-                           "Square", "Circle", "Triangle"])
-        c_se_box.activated[str].connect(self.applyPreset)
-        self.clear_btn = self.createButton("Clear", self.w_struct_el.clear, 60)
-        h_btns_layout.addWidget(c_se_box)
+        self.c_se_box = QComboBox()
+        self.c_se_box.addItems(["Select preset", "Filled",
+                                "Square", "Circle", "Triangle"])
+        self.c_se_box.activated[str].connect(self.applyPreset)
+        self.clear_btn = self.createButton(
+            "Clear", self.onClearButtonClicked, 60)
+        h_btns_layout.addWidget(self.c_se_box)
         h_btns_layout.addWidget(self.clear_btn)
 
         v_layout.addLayout(h_layout)
