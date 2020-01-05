@@ -14,7 +14,7 @@ def linear_filter(image, filter):
     for h in range(image.height()):
         for w in range(image.width()):
             filtered_img[h, w] = np.sum(
-                padded_img[h:h + filter.shape[0], w:w + filter.shape[0]] *
+                padded_img[h:h + filter.shape[0], w:w + filter.shape[1]] *
                 filter)
 
     return NpToQImage(filtered_img)
@@ -27,8 +27,8 @@ def QImageToNp(img):
     height = img.height()
 
     buf = []
-    for x in range(width):
-        for y in range(height):
+    for y in range(height):
+        for x in range(width):
             buf.append(qRed(img.pixel(x, y)))
     arr = np.array(buf).reshape((height, width))
     return arr
@@ -37,8 +37,8 @@ def QImageToNp(img):
 def NpToQImage(arr):
     height, width = arr.shape[:2]
     img = QImage(width, height, QImage.Format_Grayscale8)
-    for x in range(width):
-        for y in range(height):
-            c = arr[x, y]
+    for y in range(height):
+        for x in range(width):
+            c = arr[y, x]
             img.setPixel(x, y, qRgb(c, c, c))
     return img

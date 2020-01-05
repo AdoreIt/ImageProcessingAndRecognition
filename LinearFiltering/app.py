@@ -97,26 +97,26 @@ class MainWindow(QMainWindow):
         h_layout = QHBoxLayout()
 
         # width
-        label_w = QLabel("width")
-        label_w.setMaximumWidth(40)
-        h_layout.addWidget(label_w)
+        # label_w = QLabel("width")
+        # label_w.setMaximumWidth(40)
+        # h_layout.addWidget(label_w)
 
-        self.width_edit = QLineEdit(str(0))
-        self.width_edit.setValidator(QIntValidator(1, 99))
-        # self.width_edit.returnPressed.connect(self.structuralElementSetSize)
-        self.width_edit.setMaximumWidth(50)
-        h_layout.addWidget(self.width_edit)
+        # self.width_edit = QLineEdit(str(0))
+        # self.width_edit.setValidator(QIntValidator(1, 99))
+        # # self.width_edit.returnPressed.connect(self.structuralElementSetSize)
+        # self.width_edit.setMaximumWidth(50)
+        # h_layout.addWidget(self.width_edit)
 
-        # height
-        label_w = QLabel("height")
-        label_w.setMaximumWidth(45)
-        h_layout.addWidget(label_w)
+        # # height
+        # label_w = QLabel("height")
+        # label_w.setMaximumWidth(45)
+        # h_layout.addWidget(label_w)
 
-        self.height_edit = QLineEdit(str(0))
-        self.height_edit.setValidator(QIntValidator(1, 99))
-        # self.height_edit.returnPressed.connect(self.structuralElementSetSize)
-        self.height_edit.setMaximumWidth(50)
-        h_layout.addWidget(self.height_edit)
+        # self.height_edit = QLineEdit(str(0))
+        # self.height_edit.setValidator(QIntValidator(1, 99))
+        # # self.height_edit.returnPressed.connect(self.structuralElementSetSize)
+        # self.height_edit.setMaximumWidth(50)
+        # h_layout.addWidget(self.height_edit)
 
         v_layout.addStretch()
         self.lin_filt_edit = QPlainTextEdit("0,0,0\r\n0,1,0\r\n0,0,0")
