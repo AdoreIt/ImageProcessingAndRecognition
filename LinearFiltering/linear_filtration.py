@@ -2,7 +2,7 @@ import numpy as np
 from math import pi, exp
 from enum import Enum
 
-from PyQt5.Qt import Qt, qRed, qRgb
+from PyQt5.Qt import qRed, qRgb
 from PyQt5.QtGui import QImage
 
 
@@ -24,11 +24,12 @@ class EFilter(Enum):
 
 
 def no_change_f():
-    return '0,0,0\r\n0,1,0\r\n0,0,0'
+    return [[[0, 0, 0], [0, 1, 0], [0, 0, 0]]]
 
 
 def blur_box_f():
-    return '0.11111,0.11111,0.11111\r\n0.11111,0.11111,0.11111\r\n0.11111,0.11111,0.11111'
+    return [[[0.11111, 0.11111, 0.11111], [0.11111, 0.11111, 0.11111],
+             [0.11111, 0.11111, 0.11111]]]
 
 
 def gaussian_blur(sigma, h, w):
@@ -38,66 +39,64 @@ def gaussian_blur(sigma, h, w):
         for j in range(int(h)):
             x = i - int(w / 2)
             y = j - int(h / 2)
-            filter[i][j] = 1 / (2 * pi * sigma**2) * exp(-((x**2 + y**2) / 2 / sigma**2))
-    return filter_arr_to_string(filter)
+            filter[i][j] = 1 / (2 * pi * sigma**2) * exp(-(
+                (x**2 + y**2) / 2 / sigma**2))
+    return [filter]
 
 
 def sharpening():
-    return '-0.88888,-0.88888,-0.88888\r\n-0.88888,1.88888,-0.88888\r\n-0.88888,-0.88888,-0.88888'
+    return [[[-0.88888, -0.88888, -0.88888], [-0.88888, 1.88888, -0.88888],
+             [-0.88888, -0.88888, -0.88888]]]
 
 
 def smoothing(radius):
-    value = 1 / (2 * int(radius) + 1)**2
-    return '{st},{st},{st}\r\n{st},{st},{st}\r\n{st},{st},{st}'.format(
-        st=str(value))
+    val = 1 / (2 * int(radius) + 1)**2
+    return [[[val, val, val], [val, val, val], [val, val, val]]]
 
 
 def contrast(value):
     value = int(value)
     if value == 5:
-        return filter_arr_to_string([[0, -1, 0], [-1, 5, -1], [0, -1, 0]])
+        return [[[0, -1, 0], [-1, 5, -1], [0, -1, 0]]]
     if value == 9:
-        return filter_arr_to_string([[-1, -1, -1], [-1, 9, -1], [-1, -1, -1]])
+        return [[[-1, -1, -1], [-1, 9, -1], [-1, -1, -1]]]
 
 
 def cross():
-    return filter_arr_to_string([[0, 0, 1, 0, 0], [0, 0, 1, 0, 0],
-                                 [1, 1, 1, 1, 1], [0, 0, 1, 0, 0],
-                                 [0, 0, 1, 0, 0]])
+    return [[[0, 0, 1, 0, 0], [0, 0, 1, 0, 0], [1, 1, 1, 1, 1],
+             [0, 0, 1, 0, 0], [0, 0, 1, 0, 0]]]
 
 
 def prewitt_x():
-    return filter_arr_to_string([[-1 / 3, 0, 1 / 3], [-1 / 3, 0, 1 / 3],
-                                 [-1 / 3, 0, 1 / 3]])
+    return [[[-1 / 3, 0, 1 / 3], [-1 / 3, 0, 1 / 3], [-1 / 3, 0, 1 / 3]]]
 
 
 def prewitt_y():
-    return filter_arr_to_string([[-1 / 3, -1 / 3, -1 / 3], [0, 0, 0],
-                                 [1 / 3, 1 / 3, 1 / 3]])
+    return [[[-1 / 3, -1 / 3, -1 / 3], [0, 0, 0], [1 / 3, 1 / 3, 1 / 3]]]
 
 
 def roberts_x(size):
     size = int(size)
     if size == 2:
-        return filter_arr_to_string([[-1, 0], [0, 1]])
+        return [[[-1, 0], [0, 1]]]
     elif size == 3:
-        return filter_arr_to_string([[-1, -1, 0], [-1, 0, 1], [0, 1, 1]])
+        return [[[-1, -1, 0], [-1, 0, 1], [0, 1, 1]]]
 
 
 def roberts_y(size):
     size = int(size)
     if size == 2:
-        return filter_arr_to_string([[0, -1], [1, 0]])
+        return [[[0, -1], [1, 0]]]
     elif size == 3:
-        return filter_arr_to_string([[0, -1, -1], [1, 0, -1], [
+        return [[[0, -1, -1], [1, 0, -1], [
             1,
             1,
             0,
-        ]])
+        ]]]
 
 
 def roberts(size):
-    return str(roberts_x(size) + "\r\n;\r\n" + roberts_y(size))
+    return roberts_x(size) + roberts_y(size)
 
 
 def filter_arr_to_string(filter_arr):

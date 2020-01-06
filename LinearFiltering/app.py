@@ -4,10 +4,10 @@ import numpy
 
 from PyQt5.Qt import Qt
 from PyQt5.QtGui import QImage, QPainter, QPixmap, QIntValidator
-from PyQt5.QtWidgets import (QMainWindow, QGridLayout, QHBoxLayout,
-                             QVBoxLayout, QApplication, QWidget, QPushButton,
-                             QFileDialog, QLabel, QLineEdit, QPlainTextEdit,
-                             QComboBox, QSizePolicy, QDialog)
+from PyQt5.QtWidgets import (QMainWindow, QHBoxLayout, QVBoxLayout,
+                             QApplication, QWidget, QPushButton, QFileDialog,
+                             QLineEdit, QPlainTextEdit, QComboBox, QSizePolicy,
+                             QDialog)
 
 from linear_filtration import *
 
@@ -104,17 +104,19 @@ class MainWindow(QMainWindow):
         if filter_info[1]:
             args = self.__createParamsEdits(filter_info[1])
         if args or not filter_info[1]:
-            self.lin_filt_edit.appendPlainText(";\r\n" + filter_info[0](*args))
+            self.lin_filt_edit.appendPlainText(
+                self.__filters_arr_to_string(filter_info[0](*args)))
 
-    def __filters_arr_to_string(filters_arr):
-        filter_str = ""
-        print(filter_arr)
+    def __filters_arr_to_string(self, filters_arr):
+        filters_str = ""
         for filter in filters_arr:
+            print(filter)
             for row in filter:
-                filter_str += ','.join(map(str, row)) + '\r\n'
-            filter_str += "\r\n;\r\n"
+                print(row)
+                filters_str += ','.join(map(str, row)) + '\r\n'
+            filters_str += ";"
 
-        return filter_str
+        return filters_str
 
     def __createButton(self, name, function, max_w=60):
         button = QPushButton(name)
@@ -144,7 +146,7 @@ class MainWindow(QMainWindow):
         h_layout = QHBoxLayout()
 
         v_layout.addStretch()
-        self.lin_filt_edit = QPlainTextEdit("0,0,0\r\n0,1,0\r\n0,0,0")
+        self.lin_filt_edit = QPlainTextEdit("0,0,0\r\n0,1,0\r\n0,0,0\r\n;")
         font = self.lin_filt_edit.font()
         font.setPointSize(12)
         self.lin_filt_edit.setFont(font)
