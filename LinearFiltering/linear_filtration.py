@@ -14,9 +14,16 @@ class EFilter(Enum):
     Smoothing = "Smoothing"
     Contrast = "Contrast enchantment"
     Cross = "Cross 5x5"
+    Prewitt_x = "Prewitt x"
+    Prewitt_y = "Prewitt y"
+    Prewitt = "Prewitt"
+    Sobel_x = "Sobel x"
+    Sobel_y = "Sobel y"
+    Sobel = "Sobel"
     Roberts_x = "Roberts x"
     Roberts_y = "Roberts y"
     Roberts = "Roberts"
+    Laplace = "Laplace"
 
     @staticmethod
     def list():
@@ -55,7 +62,7 @@ def smoothing(radius):
 
 
 def contrast(value):
-    value = int(value)
+    value = check_value(int(value), 5, 9)
     if value == 5:
         return [[[0, -1, 0], [-1, 5, -1], [0, -1, 0]]]
     if value == 9:
@@ -75,8 +82,24 @@ def prewitt_y():
     return [[[-1 / 3, -1 / 3, -1 / 3], [0, 0, 0], [1 / 3, 1 / 3, 1 / 3]]]
 
 
+def prewitt():
+    return prewitt_x() + prewitt_y()
+
+
+def sobel_x():
+    return [[[-1 / 4, 0, 1 / 4], [-1 / 2, 0, -1], [-1 / 4, 0, 1 / 4]]]
+
+
+def sobel_y():
+    return [[[-1 / 4, -1 / 2, -1 / 4], [0, 0, 0], [1 / 4, 1 / 2, 1 / 4]]]
+
+
+def sobel():
+    return sobel_x() + sobel_y()
+
+
 def roberts_x(size):
-    size = int(size)
+    size = check_value(int(size), 2, 3)
     if size == 2:
         return [[[-1, 0], [0, 1]]]
     elif size == 3:
@@ -84,7 +107,7 @@ def roberts_x(size):
 
 
 def roberts_y(size):
-    size = int(size)
+    size = check_value(int(size), 2, 3)
     if size == 2:
         return [[[0, -1], [1, 0]]]
     elif size == 3:
@@ -99,13 +122,20 @@ def roberts(size):
     return roberts_x(size) + roberts_y(size)
 
 
-def filter_arr_to_string(filter_arr):
-    filter_str = ""
-    print(filter_arr)
-    for row in filter_arr:
-        filter_str += ','.join(map(str, row)) + '\r\n'
+def laplase(value):
+    value = check_value(int(value), 4, 8)
+    if value != 4 or value != 8:
+        value = 4
+    if value == 4:
+        return [[[0, -1, 0], [-1, 4, -1], [0, -1, 0]]]
+    if value == 8:
+        return [[[-1, -1, -1], [-1, 8, -1], [-1, -1, -1]]]
 
-    return filter_str
+
+def check_value(value, v_1, v_2):
+    if value != v_1 and value != v_2:
+        value = v_1
+    return value
 
 
 FILTERS_DICT = {
@@ -117,9 +147,16 @@ FILTERS_DICT = {
     EFilter.Smoothing: (smoothing, ["radius"]),
     EFilter.Contrast: (contrast, ["value: 5 or 9"]),
     EFilter.Cross: (cross, []),
+    EFilter.Prewitt_x: (prewitt_x, []),
+    EFilter.Prewitt_y: (prewitt_y, []),
+    EFilter.Prewitt: (prewitt, []),
+    EFilter.Sobel_x: (sobel_x, []),
+    EFilter.Sobel_y: (sobel_y, []),
+    EFilter.Sobel: (sobel, []),
     EFilter.Roberts_x: (roberts_x, ["size: 2 or 3"]),
     EFilter.Roberts_y: (roberts_y, ["size: 2 or 3"]),
-    EFilter.Roberts: (roberts, ["size: 2 or 3"])
+    EFilter.Roberts: (roberts, ["size: 2 or 3"]),
+    EFilter.Laplace: (laplase, ["value: 5 or 9"])
 }
 
 

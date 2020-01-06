@@ -114,7 +114,7 @@ class MainWindow(QMainWindow):
             for row in filter:
                 print(row)
                 filters_str += ','.join(map(str, row)) + '\r\n'
-            filters_str += ";"
+            filters_str += ';\r\n'
 
         return filters_str
 
@@ -146,7 +146,7 @@ class MainWindow(QMainWindow):
         h_layout = QHBoxLayout()
 
         v_layout.addStretch()
-        self.lin_filt_edit = QPlainTextEdit("0,0,0\r\n0,1,0\r\n0,0,0\r\n;")
+        self.lin_filt_edit = QPlainTextEdit()
         font = self.lin_filt_edit.font()
         font.setPointSize(12)
         self.lin_filt_edit.setFont(font)
