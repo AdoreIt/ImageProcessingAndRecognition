@@ -1,21 +1,30 @@
+from io import StringIO
+import csv
+import numpy
+
 from PyQt5.Qt import Qt
 from PyQt5.QtGui import QImage, QPainter, QPixmap, QIntValidator
 from PyQt5.QtWidgets import (QMainWindow, QGridLayout, QHBoxLayout,
                              QVBoxLayout, QApplication, QWidget, QPushButton,
                              QFileDialog, QLabel, QLineEdit, QPlainTextEdit,
-                             QComboBox, QSizePolicy)
+                             QComboBox, QSizePolicy, QDialog)
 
-from io import StringIO
-import csv
-import numpy
-
-#w from morphological_operations import *
 from linear_filtration import *
-from LinearFilter import *
 
 
 def read_image(file_name):
     return QImage(file_name)
+
+
+class FunctionParamsDialog(QDialog):
+    def __init__(self, parent=None):
+        super(FunctionParamsDialog, self).__init__(parent)
+        self.everything_is_fine = False
+
+    def keyPressEvent(self, e):
+        if e.key() == Qt.Key_Return:
+            self.everything_is_fine = True
+            self.close()
 
 
 class MainWindow(QMainWindow):
@@ -46,11 +55,11 @@ class MainWindow(QMainWindow):
         self.w_res_image = w_res_image
 
         # -- Drop Down menu
-        c_box = QComboBox()
-        c_box.addItems(["Dilation", "Erosion", "Border", "Opening", "Closure"])
-        # c_box.activated[str].connect(self.onMorfOperationChanged)
-        self.operation = "Dilation"
-        result_image_layout.addWidget(c_box)
+        # c_box = QComboBox()
+        # c_box.addItems(["Dilation", "Erosion", "Border", "Opening", "Closure"])
+        # # c_box.activated[str].connect(self.onMorfOperationChanged)
+        # self.operation = "Dilation"
+        # result_image_layout.addWidget(c_box)
         result_image_layout.addStretch(1)
 
         # structural element layout
@@ -67,7 +76,34 @@ class MainWindow(QMainWindow):
 
         self.w_in_image.setImage(self.__openImage("input_image.jpg"))
         self.resize(1200, 500)
-        self.setWindowTitle("LinearFiltration")
+        self.setWindowTitle("LinearFiltering")
+
+    def __createParamsEdits(self, names):
+        dialog = FunctionParamsDialog()
+        d_h_l = QHBoxLayout()
+
+        line_edits = []
+
+        for name in names:
+            l_e = QLineEdit()
+            l_e.setPlaceholderText(name)
+            d_h_l.addWidget(l_e)
+            line_edits.append(l_e)
+
+        dialog.setLayout(d_h_l)
+        dialog.exec()
+        if dialog.everything_is_fine:
+            return [float(line.text()) for line in line_edits]
+        else:
+            return None
+
+    def __onFilterSelected(self, filter):
+        filter_info = FILTERS_DICT[EFilter(filter)]
+        args = []
+        if filter_info[1]:
+            args = self.__createParamsEdits(filter_info[1])
+        if args or not filter_info[1]:
+            self.lin_filt_edit.appendPlainText(";\r\n" + filter_info[0](*args))
 
     def __createButton(self, name, function, max_w=60):
         button = QPushButton(name)
@@ -96,35 +132,13 @@ class MainWindow(QMainWindow):
         v_layout = QVBoxLayout()
         h_layout = QHBoxLayout()
 
-        # width
-        # label_w = QLabel("width")
-        # label_w.setMaximumWidth(40)
-        # h_layout.addWidget(label_w)
-
-        # self.width_edit = QLineEdit(str(0))
-        # self.width_edit.setValidator(QIntValidator(1, 99))
-        # # self.width_edit.returnPressed.connect(self.structuralElementSetSize)
-        # self.width_edit.setMaximumWidth(50)
-        # h_layout.addWidget(self.width_edit)
-
-        # # height
-        # label_w = QLabel("height")
-        # label_w.setMaximumWidth(45)
-        # h_layout.addWidget(label_w)
-
-        # self.height_edit = QLineEdit(str(0))
-        # self.height_edit.setValidator(QIntValidator(1, 99))
-        # # self.height_edit.returnPressed.connect(self.structuralElementSetSize)
-        # self.height_edit.setMaximumWidth(50)
-        # h_layout.addWidget(self.height_edit)
-
         v_layout.addStretch()
         self.lin_filt_edit = QPlainTextEdit("0,0,0\r\n0,1,0\r\n0,0,0")
         font = self.lin_filt_edit.font()
-        font.setPointSize(16)
+        font.setPointSize(12)
         self.lin_filt_edit.setFont(font)
         # self.lin_filt_edit.onStructuralElementChanged.connect(
-        #     self.onStructuralElementChanged)
+        #     self.__onFilterSelected)
         v_layout.addWidget(self.lin_filt_edit)
         self.lin_filt_edit.setSizePolicy(QSizePolicy.Expanding,
                                          QSizePolicy.Expanding)
@@ -132,9 +146,8 @@ class MainWindow(QMainWindow):
 
         h_btns_layout = QHBoxLayout()
         self.c_se_box = QComboBox()
-        self.c_se_box.addItems(
-            ["Select preset", "Filled", "Square", "Circle", "Triangle"])
-        # self.c_se_box.activated[str].connect(self.applyPreset)
+        self.c_se_box.addItems(EFilter.list())
+        self.c_se_box.activated[str].connect(self.__onFilterSelected)
         self.apply_filt_btn = self.__createButton("Apply",
                                                   self.__onApplyFilterBtn, 60)
         h_btns_layout.addWidget(self.c_se_box)
@@ -148,18 +161,23 @@ class MainWindow(QMainWindow):
     def __openImage(self, image_path):
         image = QImage(image_path)
         image.convertTo(QImage.Format_Grayscale8)
-        # print(len(image))
         return image
 
     def __onApplyFilterBtn(self):
-        mat_str = self.lin_filt_edit.toPlainText()
-        f = StringIO(mat_str)
-        reader = csv.reader(f, delimiter=",")
-        x = list(reader)
-        filter = numpy.array(x).astype("float").T
-        # print(filter)
-        # print(self.w_in_image.image)
-        self.w_res_image.setImage(linear_filter(self.w_in_image.image, filter))
+        filter_str_list = self.lin_filt_edit.toPlainText().split(';')
+
+        self.w_res_image.setImage(
+            linear_filter(self.w_in_image.image,
+                          self.__QStringToNp(filter_str_list)))
+
+    def __QStringToNp(self, array_of_qstrings):
+        filters = []
+        for array in array_of_qstrings:
+            f = StringIO(array)
+            reader = csv.reader(f, delimiter=",")
+            x = list(filter(bool, reader))
+            filters.append(numpy.array(x).astype("float"))
+        return filters
 
 
 class WImage(QWidget):
