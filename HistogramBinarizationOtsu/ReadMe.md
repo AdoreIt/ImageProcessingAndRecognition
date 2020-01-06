@@ -6,10 +6,17 @@ Using picked histogram threshold and Otsu algorithm
 
 ![Usage example](usage_example.gif)
 
+## Installation
+
+```bash
+pipenv install
+```
+
 ## Launch
 
 from current directory:
 
 ```bash
+pipenv shell
 python main.py image_path
 ```
