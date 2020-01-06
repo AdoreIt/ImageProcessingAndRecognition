@@ -124,8 +124,6 @@ def roberts(size):
 
 def laplase(value):
     value = check_value(int(value), 4, 8)
-    if value != 4 or value != 8:
-        value = 4
     if value == 4:
         return [[[0, -1, 0], [-1, 4, -1], [0, -1, 0]]]
     if value == 8:
@@ -156,7 +154,7 @@ FILTERS_DICT = {
     EFilter.Roberts_x: (roberts_x, ["size: 2 or 3"]),
     EFilter.Roberts_y: (roberts_y, ["size: 2 or 3"]),
     EFilter.Roberts: (roberts, ["size: 2 or 3"]),
-    EFilter.Laplace: (laplase, ["value: 5 or 9"])
+    EFilter.Laplace: (laplase, ["value: 4 or 8"])
 }
 
 
