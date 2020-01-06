@@ -87,6 +87,7 @@ class MainWindow(QMainWindow):
         for name in names:
             l_e = QLineEdit()
             l_e.setPlaceholderText(name)
+            l_e.setValidator(QIntValidator())
             d_h_l.addWidget(l_e)
             line_edits.append(l_e)
 
@@ -104,6 +105,16 @@ class MainWindow(QMainWindow):
             args = self.__createParamsEdits(filter_info[1])
         if args or not filter_info[1]:
             self.lin_filt_edit.appendPlainText(";\r\n" + filter_info[0](*args))
+
+    def __filters_arr_to_string(filters_arr):
+        filter_str = ""
+        print(filter_arr)
+        for filter in filters_arr:
+            for row in filter:
+                filter_str += ','.join(map(str, row)) + '\r\n'
+            filter_str += "\r\n;\r\n"
+
+        return filter_str
 
     def __createButton(self, name, function, max_w=60):
         button = QPushButton(name)

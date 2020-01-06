@@ -12,8 +12,11 @@ class EFilter(Enum):
     Gaussian_blur = "Gaussian blur"
     Sharpening = "Sharpening"
     Smoothing = "Smoothing"
+    Contrast = "Contrast enchantment"
+    Cross = "Cross 5x5"
     Roberts_x = "Roberts x"
     Roberts_y = "Roberts y"
+    Roberts = "Roberts"
 
     @staticmethod
     def list():
@@ -48,6 +51,30 @@ def smoothing(radius):
         st=str(value))
 
 
+def contrast(value):
+    value = int(value)
+    if value == 5:
+        return filter_arr_to_string([[0, -1, 0], [-1, 5, -1], [0, -1, 0]])
+    if value == 9:
+        return filter_arr_to_string([[-1, -1, -1], [-1, 9, -1], [-1, -1, -1]])
+
+
+def cross():
+    return filter_arr_to_string([[0, 0, 1, 0, 0], [0, 0, 1, 0, 0],
+                                 [1, 1, 1, 1, 1], [0, 0, 1, 0, 0],
+                                 [0, 0, 1, 0, 0]])
+
+
+def prewitt_x():
+    return filter_arr_to_string([[-1 / 3, 0, 1 / 3], [-1 / 3, 0, 1 / 3],
+                                 [-1 / 3, 0, 1 / 3]])
+
+
+def prewitt_y():
+    return filter_arr_to_string([[-1 / 3, -1 / 3, -1 / 3], [0, 0, 0],
+                                 [1 / 3, 1 / 3, 1 / 3]])
+
+
 def roberts_x(size):
     size = int(size)
     if size == 2:
@@ -68,6 +95,10 @@ def roberts_y(size):
         ]])
 
 
+def roberts(size):
+    return str(roberts_x(size) + "\r\n;\r\n" + roberts_y(size))
+
+
 def filter_arr_to_string(filter_arr):
     filter_str = ""
     print(filter_arr)
@@ -84,8 +115,11 @@ FILTERS_DICT = {
     (gaussian_blur, ["sigma", "filter height", "filter width"]),
     EFilter.Sharpening: (sharpening, []),
     EFilter.Smoothing: (smoothing, ["radius"]),
+    EFilter.Contrast: (contrast, ["value: 5 or 9"]),
+    EFilter.Cross: (cross, []),
     EFilter.Roberts_x: (roberts_x, ["size: 2 or 3"]),
-    EFilter.Roberts_y: (roberts_y, ["size: 2 or 3"])
+    EFilter.Roberts_y: (roberts_y, ["size: 2 or 3"]),
+    EFilter.Roberts: (roberts, ["size: 2 or 3"])
 }
 
 
