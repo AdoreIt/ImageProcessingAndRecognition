@@ -104,9 +104,7 @@ class MainWindow(QMainWindow):
     def __filters_arr_to_string(self, filters_arr):
         filters_str = ""
         for filter in filters_arr:
-            print(filter)
             for row in filter:
-                print(row)
                 filters_str += ','.join(map(str, row)) + '\r\n'
             filters_str += ';\r\n'
 
