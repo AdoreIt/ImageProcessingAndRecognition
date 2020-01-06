@@ -4,7 +4,6 @@ import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import matplotlib.gridspec as gridspec
-import matplotlib.animation as animation
 
 from Otsu import Otsu
 from ThresholdSelector import ThresholdSelector
@@ -55,12 +54,11 @@ def add_image_figure(figure, name, location, image):
 if __name__ == "__main__":
     argparser = argparse.ArgumentParser(
         description='Histogram creator. Image binarizator')
-    argparser.add_argument(
-        '-i',
-        '--input_image_path',
-        type=str,
-        help="path to input image",
-        default="input_image.jpg")
+    argparser.add_argument('-i',
+                           '--input_image_path',
+                           type=str,
+                           help="path to input image",
+                           default="Images/maltese.jpg")
 
     args = argparser.parse_args()
 
@@ -89,16 +87,15 @@ if __name__ == "__main__":
     plt.bar(np.arange(256), im_histogram, color="black")
 
     otsu_line = plt.axvline(x=otsu, color='red', label="Otsu threshold")
-    binary_line = plt.axvline(
-        color='deepskyblue', label="Binarization threshold")
+    binary_line = plt.axvline(color='deepskyblue',
+                              label="Binarization threshold")
 
     def onclick(event):
         if event.inaxes in [fig_histogram]:
             selected_threshold = int(event.xdata)
             binary_line.set_xdata(selected_threshold)
-            fig_binary_image.imshow(
-                binarizate(gray_image, selected_threshold),
-                plt.get_cmap('gray'))
+            fig_binary_image.imshow(binarizate(gray_image, selected_threshold),
+                                    plt.get_cmap('gray'))
             plt.draw()
 
     figure.canvas.mpl_connect('button_press_event', onclick)

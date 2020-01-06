@@ -1,7 +1,8 @@
 from PyQt5.Qt import Qt
 from PyQt5.QtGui import QImage, QPainter, QPixmap, QIntValidator
-from PyQt5.QtWidgets import (
-    QMainWindow, QGridLayout, QHBoxLayout, QVBoxLayout, QApplication, QWidget, QPushButton, QFileDialog, QLabel, QLineEdit, QComboBox, QSizePolicy)
+from PyQt5.QtWidgets import (QMainWindow, QHBoxLayout, QVBoxLayout,
+                             QApplication, QWidget, QPushButton, QFileDialog,
+                             QLabel, QLineEdit, QComboBox, QSizePolicy)
 
 from morphological_operations import *
 from StructuralElementEditor import *
@@ -40,8 +41,7 @@ class MainWindow(QMainWindow):
 
         # -- Drop Down menu
         c_box = QComboBox()
-        c_box.addItems(
-            ["Dilation", "Erosion", "Border", "Opening", "Closure"])
+        c_box.addItems(["Dilation", "Erosion", "Border", "Opening", "Closure"])
         c_box.activated[str].connect(self.onMorfOperationChanged)
         self.operation = "Dilation"
         result_image_layout.addWidget(c_box)
@@ -60,7 +60,7 @@ class MainWindow(QMainWindow):
         w.setLayout(g_layout)
         self.setCentralWidget(w)
 
-        self.w_in_image.setImage(self.openImage("input_image.jpg"))
+        self.w_in_image.setImage(self.openImage("Images/input_image.jpg"))
         self.resize(1200, 500)
         self.setWindowTitle("MorphologicalOperations")
 
@@ -77,8 +77,8 @@ class MainWindow(QMainWindow):
             self.w_struct_el.setPreset(EPreset.TRIANGLE)
 
     def structuralElementSetSize(self):
-        self.w_struct_el.setSize(
-            int(self.width_edit.text()), int(self.height_edit.text()))
+        self.w_struct_el.setSize(int(self.width_edit.text()),
+                                 int(self.height_edit.text()))
 
     def applyOperation(self):
         if self.operation == "Dilation":
@@ -158,17 +158,17 @@ class MainWindow(QMainWindow):
         self.w_struct_el.onStructuralElementChanged.connect(
             self.onStructuralElementChanged)
         v_layout.addWidget(self.w_struct_el)
-        self.w_struct_el.setSizePolicy(
-            QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.w_struct_el.setSizePolicy(QSizePolicy.Expanding,
+                                       QSizePolicy.Expanding)
         self.w_struct_el.setMinimumSize(200, 200)
 
         h_btns_layout = QHBoxLayout()
         self.c_se_box = QComboBox()
-        self.c_se_box.addItems(["Select preset", "Filled",
-                                "Square", "Circle", "Triangle"])
+        self.c_se_box.addItems(
+            ["Select preset", "Filled", "Square", "Circle", "Triangle"])
         self.c_se_box.activated[str].connect(self.applyPreset)
-        self.clear_btn = self.createButton(
-            "Clear", self.onClearButtonClicked, 60)
+        self.clear_btn = self.createButton("Clear", self.onClearButtonClicked,
+                                           60)
         h_btns_layout.addWidget(self.c_se_box)
         h_btns_layout.addWidget(self.clear_btn)
 
@@ -209,8 +209,8 @@ class WImage(QWidget):
 
         if self.image is not None:
             pixmap = QPixmap.fromImage(self.image)
-            pixmap = pixmap.scaled(
-                self.width(), self.height(), Qt.KeepAspectRatio)
+            pixmap = pixmap.scaled(self.width(), self.height(),
+                                   Qt.KeepAspectRatio)
             p.drawPixmap(self.rect().center() - pixmap.rect().center(), pixmap)
 
 

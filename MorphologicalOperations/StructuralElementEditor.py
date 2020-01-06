@@ -70,9 +70,9 @@ class WStructuralElementEditor(QWidget):
             p = QPainter(self.str_elem.image)
             path = QPainterPath()
             x, y, size = self.calcRectDims()
-            path.moveTo(x+size/2, y)
-            path.lineTo(x+size, y+size)
-            path.lineTo(x, y+size)
+            path.moveTo(x + size / 2, y)
+            path.lineTo(x + size, y + size)
+            path.lineTo(x, y + size)
             path.closeSubpath()
             p.fillPath(path, QColor.fromRgb(BLACK))
 
@@ -95,7 +95,8 @@ class WStructuralElementEditor(QWidget):
             self.draw_color = BLACK if self.last_pos is None or self.str_elem.image.pixel(
                 self.last_pos) != BLACK else WHITE
 
-            if self.last_pos is not None and pos is not None and e.buttons() == Qt.LeftButton:
+            if self.last_pos is not None and pos is not None and e.buttons(
+            ) == Qt.LeftButton:
                 self.__draw_line(self.last_pos, pos, self.draw_color)
             self.last_pos = pos
         elif e.buttons() == Qt.RightButton:
@@ -106,7 +107,8 @@ class WStructuralElementEditor(QWidget):
 
     def mouseMoveEvent(self, e):
         pos = self.__window_to_image(e.pos())
-        if self.last_pos is not None and pos is not None and e.buttons() == Qt.LeftButton:
+        if self.last_pos is not None and pos is not None and e.buttons(
+        ) == Qt.LeftButton:
             self.__draw_line(self.last_pos, pos, self.draw_color)
         self.last_pos = pos
 

@@ -5,7 +5,11 @@ class ThresholdSelector(object):
             color='lightskyblue', label="Threshold selector")  # the vert line
 
         # text location in axes coords
-        self.txt = subplot.text(0.95, 0.9, '', transform=subplot.transAxes, color="steelblue")
+        self.txt = subplot.text(0.95,
+                                0.9,
+                                '',
+                                transform=subplot.transAxes,
+                                color="steelblue")
 
     def mouse_move(self, event):
         if not event.inaxes:

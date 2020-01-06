@@ -22,16 +22,19 @@ class Otsu:
 
         return sum_group_probs
 
-    def mean_group_values(self, pixels_intensity_probabilities, sum_group_probabilities):
+    def mean_group_values(self, pixels_intensity_probabilities,
+                          sum_group_probabilities):
         mu_1, mu_2 = np.zeros(256), np.zeros(256)
 
         for threshold in range(256):
             for intensity in range(threshold + 1):
-                mu_1[threshold] += (intensity * pixels_intensity_probabilities[intensity]
+                mu_1[threshold] += (intensity *
+                                    pixels_intensity_probabilities[intensity]
                                     ) / sum_group_probabilities[threshold]
             for intensity in range(threshold + 1, 256):
-                mu_2[threshold] += (intensity * pixels_intensity_probabilities[intensity]
-                                    ) / (1 - sum_group_probabilities[threshold])
+                mu_2[threshold] += (
+                    intensity * pixels_intensity_probabilities[intensity]) / (
+                        1 - sum_group_probabilities[threshold])
 
         return mu_1, mu_2
 
@@ -51,10 +54,9 @@ class Otsu:
 
         pixels_intensity_probs = self.pixels_intensity_probabilities(
             self.histogram)
-        sum_group_probs = self.sum_group_probabilities(
-            pixels_intensity_probs)
-        mu_1, mu_2 = self.mean_group_values(
-            pixels_intensity_probs, sum_group_probs)
+        sum_group_probs = self.sum_group_probabilities(pixels_intensity_probs)
+        mu_1, mu_2 = self.mean_group_values(pixels_intensity_probs,
+                                            sum_group_probs)
         equivalent_max_values = self.equivalent_maximization(
             sum_group_probs, mu_1, mu_2)
 

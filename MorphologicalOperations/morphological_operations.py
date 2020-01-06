@@ -78,7 +78,8 @@ def __difference(image_l, image_r):
     image_difference = QImage(image_l.size(), QImage.Format_Mono)
     for w in range(image_l.width()):
         for h in range(image_l.height()):
-            if __getPixel(image_l, w, h) == BLACK and __getPixel(image_r, w, h) == WHITE:
+            if __getPixel(image_l, w, h) == BLACK and __getPixel(
+                    image_r, w, h) == WHITE:
                 __setPixel(image_difference, w, h, 0)
             else:
                 __setPixel(image_difference, w, h, 1)

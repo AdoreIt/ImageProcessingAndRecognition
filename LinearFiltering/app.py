@@ -54,12 +54,6 @@ class MainWindow(QMainWindow):
         w_res_image.setMinimumSize(200, 200)
         self.w_res_image = w_res_image
 
-        # -- Drop Down menu
-        # c_box = QComboBox()
-        # c_box.addItems(["Dilation", "Erosion", "Border", "Opening", "Closure"])
-        # # c_box.activated[str].connect(self.onMorfOperationChanged)
-        # self.operation = "Dilation"
-        # result_image_layout.addWidget(c_box)
         result_image_layout.addStretch(1)
 
         # structural element layout
@@ -74,7 +68,7 @@ class MainWindow(QMainWindow):
         w.setLayout(g_layout)
         self.setCentralWidget(w)
 
-        self.w_in_image.setImage(self.__openImage("input_image.jpg"))
+        self.w_in_image.setImage(self.__openImage("Images/input_image.jpg"))
         self.resize(1200, 500)
         self.setWindowTitle("LinearFiltering")
 
@@ -150,9 +144,8 @@ class MainWindow(QMainWindow):
         font = self.lin_filt_edit.font()
         font.setPointSize(12)
         self.lin_filt_edit.setFont(font)
-        # self.lin_filt_edit.onStructuralElementChanged.connect(
-        #     self.__onFilterSelected)
         v_layout.addWidget(self.lin_filt_edit)
+
         self.lin_filt_edit.setSizePolicy(QSizePolicy.Expanding,
                                          QSizePolicy.Expanding)
         self.lin_filt_edit.setMinimumSize(200, 200)
