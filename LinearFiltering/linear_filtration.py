@@ -165,6 +165,6 @@ def NpToQImage(arr):
     img = QImage(width, height, QImage.Format_Grayscale8)
     for y in range(height):
         for x in range(width):
-            c = arr[y, x]
+            c = max(0, min(arr[y, x], 255))
             img.setPixel(x, y, qRgb(c, c, c))
     return img
