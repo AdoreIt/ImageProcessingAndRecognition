@@ -36,8 +36,9 @@ def gaussian_blur(sigma, h, w):
     filter = list([list(0 for _ in range(int(h))) for _ in range(int(w))])
     for i in range(int(w)):
         for j in range(int(h)):
-            filter[i][j] = 1 / (2 * pi * sigma**2) * exp(-(
-                (i**2 + j**2) / 2 / sigma**2))
+            x = i - int(w / 2)
+            y = j - int(h / 2)
+            filter[i][j] = 1 / (2 * pi * sigma**2) * exp(-((x**2 + y**2) / 2 / sigma**2))
     return filter_arr_to_string(filter)
 
 
@@ -130,6 +131,8 @@ def linear_filter(image, filters):
     filtered_img = np.zeros((image.height(), image.width()), int)
 
     for filter in filters:
+        if len(filter) == 0:
+            continue
         padded_img = np.pad(np_img,
                             pad_width=int((filter.shape[1] - 1) / 2),
                             mode='constant',
