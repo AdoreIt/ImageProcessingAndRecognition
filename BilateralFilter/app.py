@@ -76,8 +76,8 @@ class MainWindow(QMainWindow):
         sigma_layout.addWidget(sigma_label)
 
         self.sigma_slider = QSlider(Qt.Horizontal)
-        self.sigma_slider.setRange(0, 100)
-        self.sigma_slider.setTickInterval(5)
+        self.sigma_slider.setRange(0, 10)
+        self.sigma_slider.setTickInterval(1)
         self.sigma_slider.setTickPosition(QSlider.TicksBelow)
         self.sigma_slider.valueChanged.connect(self.__update)
         sigma_layout.addWidget(self.sigma_slider, 20)
@@ -101,10 +101,8 @@ class MainWindow(QMainWindow):
 
         h_box_layout.addLayout(threshold_layout)
 
-
         w.setLayout(h_box_layout)
         self.setCentralWidget(w)
-
 
     def __onSelect(self):
         fname = QFileDialog.getOpenFileName(caption='Open image',
@@ -114,7 +112,6 @@ class MainWindow(QMainWindow):
             self.w_image.setImage(self.original_image)
             self.filter = BilateralFilter(self.original_image)
 
-
     def __update(self):
         if self.filter:
             if not self.width_edit.text() or not self.height_edit.text():
@@ -123,8 +120,8 @@ class MainWindow(QMainWindow):
             width = int(self.width_edit.text())
             height = int(self.height_edit.text())
             threshold = self.threshold_slider.value()
-            self.w_image.setImage(self.filter.apply(sigma, height, width, threshold))
-
+            self.w_image.setImage(
+                self.filter.apply(sigma, height, width, threshold))
 
     def __openImage(self, image_path):
         image = QImage(image_path)

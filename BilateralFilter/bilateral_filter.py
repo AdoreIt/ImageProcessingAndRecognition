@@ -36,6 +36,8 @@ class BilateralFilter:
     def apply(self, sigma, height, width, threshold):
         filter = self.gaussian_distribution(sigma, height, width)
         image = self.bilateral_filtering(filter, threshold)
+        print(sigma, height, width, threshold)
+
         return NpToQImage(image)
 
     def gaussian_distribution(self, sigma, h, w):
@@ -44,9 +46,12 @@ class BilateralFilter:
             for j in range(int(h)):
                 x = i - int(w / 2)
                 y = j - int(h / 2)
-                filter[i][j] = 1 / (2 * pi * sigma**2) * exp(-(
-                    (x**2 + y**2) / 2 / sigma**2))
-        return filter
+                if sigma == 0:
+                    filter[i][j] = 0
+                else:
+                    filter[i][j] = 1 / (2 * pi * sigma**2) * exp(-(
+                        (x**2 + y**2) / 2 / sigma**2))
+        return np.array(filter)
 
     def bilateral_filtering(self, filter, threshold):
         filtered_img = self.image.copy()
@@ -56,27 +61,31 @@ class BilateralFilter:
                             mode='constant',
                             constant_values=0)
 
-        for h in range(self.image.height()):
-            for w in range(self.image.width()):
+        for h in range(self.image.shape[0]):
+            for w in range(self.image.shape[1]):
                 image_region = padded_img[h:h + filter.shape[0],
                                           w:w + filter.shape[1]]
 
                 changed_filter = self.change_filter(image_region, filter,
                                                     threshold)
 
-                filtered_img[h, w] = np.sum(
-                    image_region[h:h + filter.shape[0],
-                                 w:w + filter.shape[1]] * changed_filter)
+                filtered_img[h, w] = np.sum(image_region * changed_filter)
 
         return filtered_img
 
     def change_filter(self, image_region, filter, threshold):
         changed_filter = filter.copy()
-        f_centr = filter[(filter.size[0] - 1) / 2, (filter.size[1] - 1) / 2]
 
-        for h in range(image_region.size[0]):
-            for w in range(image_region.size[1]):
-                if abs(image_region[h, w], f_centr) >= threshold:
+        f_centr = filter[int((filter.shape[0] - 1) / 2),
+                         int((filter.shape[1] - 1) / 2)]
+
+        for h in range(image_region.shape[0]):
+            for w in range(image_region.shape[1]):
+                if abs(image_region[h, w] - f_centr) >= threshold:
                     changed_filter[h, w] = 0
 
-        return changed_filter / np.sum(changed_filter)
+        if np.sum(changed_filter) == 0:
+            return changed_filter
+        else:
+
+            return np.true_divide(changed_filter, np.sum(changed_filter))
