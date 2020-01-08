@@ -12,6 +12,7 @@ pylint = "*"
 yapf = "*"
 autopep8 = "*"
 pipfile = "*"
+matplotlib = "*"
 
 [requires]
 python_version = "3.6"
