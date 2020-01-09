@@ -242,7 +242,20 @@ def NpToQImage(arr):
 
 def ImpulseNoise(image):
     np_image = QImageToNp(image)
-    print("noise")
+    row, col = np_image.shape
+    s_vs_p = 0.5
+    amount = 0.04
+
+    # Salt mode
+    num_salt = np.ceil(amount * np_image.size * s_vs_p)
+    coords = [np.random.randint(0, i - 1, int(num_salt)) for i in np_image.shape]
+    np_image[tuple(coords)] = 255
+
+    # Pepper mode
+    num_pepper = np.ceil(amount * np_image.size * (1. - s_vs_p))
+    coords = [np.random.randint(0, i - 1, int(num_pepper)) for i in np_image.shape]
+    np_image[tuple(coords)] = 0
+
     return NpToQImage(np_image)
 
 
