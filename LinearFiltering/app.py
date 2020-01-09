@@ -122,6 +122,14 @@ class MainWindow(QMainWindow):
         if fname[0]:
             self.__setInputImage(fname[0])
 
+    def __sumImagesButton(self):
+        self.w_res_image.setImage(sum_images(self.w_in_image.image,
+                                             self.w_res_image.image))
+
+    def __substractImagesButton(self):
+        self.w_res_image.setImage(
+            substract_images(self.w_in_image.image, self.w_res_image.image))
+
     def __setInputImage(self, image_path):
         img = self.__openImage(image_path)
         self.w_in_image.setImage(img)
@@ -161,8 +169,18 @@ class MainWindow(QMainWindow):
         h_btns_layout.addWidget(self.c_se_box)
         h_btns_layout.addWidget(self.apply_filt_btn)
 
+        h_op_btns_layout = QHBoxLayout()
+        self.sum_btn = self.__createButton("Sum images",
+                                           self.__sumImagesButton, 120)
+        h_op_btns_layout.addWidget(self.sum_btn)
+        self.subtract_btn = self.__createButton("Subtract images",
+                                                self.__substractImagesButton,
+                                                120)
+        h_op_btns_layout.addWidget(self.subtract_btn)
+
         v_layout.addLayout(h_layout)
         v_layout.addLayout(h_btns_layout)
+        v_layout.addLayout(h_op_btns_layout)
         v_layout.addStretch()
         return v_layout
 

@@ -167,6 +167,14 @@ def linear_filter(image, filters):
     return NpToQImage(filtered_img)
 
 
+def sum_images(img_1, img_2):
+    return NpToQImage(QImageToNp(img_1) + QImageToNp(img_2))
+
+
+def substract_images(img_1, img_2):
+    return NpToQImage(QImageToNp(img_1) - QImageToNp(img_2))
+
+
 def QImageToNp(img):
     '''  Converts a grascale QImage into np arr'''
 
