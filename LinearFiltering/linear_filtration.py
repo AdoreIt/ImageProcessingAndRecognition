@@ -23,6 +23,8 @@ class EFilter(Enum):
     Roberts_y = "Roberts y"
     Roberts = "Roberts"
     Laplace = "Laplace"
+    Cross = "Cross 5x5 aperture"
+    Rectengular = "Rectengular aperture"
 
     @staticmethod
     def list():
@@ -139,6 +141,63 @@ def check_value(value, v_1, v_2):
     return value
 
 
+def cross():
+    return [[[0, 0, 1, 0, 0], [0, 0, 1, 0, 0], [1, 1, 1, 1, 1],
+             [0, 0, 1, 0, 0], [0, 0, 1, 0, 0]]]
+
+
+def rectengular():
+    return [[[1, 1, 1], [1, 1, 1], [1, 1, 1]]]
+
+
+def ImpulseNoise(image):
+    np_image = QImageToNp(image)
+    row, col = np_image.shape
+    s_vs_p = 0.5
+    amount = 0.04
+
+    # Salt mode
+    num_salt = np.ceil(amount * np_image.size * s_vs_p)
+    coords = [
+        np.random.randint(0, i - 1, int(num_salt)) for i in np_image.shape
+    ]
+    np_image[tuple(coords)] = 255
+
+    # Pepper mode
+    num_pepper = np.ceil(amount * np_image.size * (1. - s_vs_p))
+    coords = [
+        np.random.randint(0, i - 1, int(num_pepper)) for i in np_image.shape
+    ]
+    np_image[tuple(coords)] = 0
+
+    return NpToQImage(np_image)
+
+
+def median(img, apertures):
+    np_img = QImageToNp(img)
+
+    # shape(h,w)
+    np_img = np_img.copy()
+    filtered_img = np.zeros(np_img.shape, int)
+
+    for aperture in apertures:
+        if aperture.size == 0:
+            continue
+
+        padded_img = np.pad(np_img,
+                            pad_width=int((aperture.shape[1] - 1) / 2),
+                            mode='constant',
+                            constant_values=0)
+        for h in range(np_img.shape[0]):
+            for w in range(np_img.shape[1]):
+                reg = padded_img[h:h + aperture.shape[0],
+                                 w:w + aperture.shape[1]]
+                filtered_img[h, w] = np.median(reg[aperture > 0])
+        np_img = filtered_img
+
+    return NpToQImage(filtered_img)
+
+
 def convolve(np_im, filters, img_w, img_h):
     # shape(h,w)
     np_img = np_im.copy()
@@ -210,30 +269,6 @@ def LaplacianOfGaussian(image, threshold):
     return NpToQImage(LoG)
 
 
-def median(img, apertures):
-    np_img = QImageToNp(img)
-
-    # shape(h,w)
-    np_img = np_img.copy()
-    filtered_img = np.zeros(np_img.shape, int)
-
-    for aperture in apertures:
-        if aperture.size == 0:
-            continue
-
-        padded_img = np.pad(np_img,
-                            pad_width=int((aperture.shape[1] - 1) / 2),
-                            mode='constant',
-                            constant_values=0)
-        for h in range(np_img.shape[0]):
-            for w in range(np_img.shape[1]):
-                reg = padded_img[h:h + aperture.shape[0], w:w + aperture.shape[1]]
-                filtered_img[h, w] = np.median(reg[aperture > 0])
-        np_img = filtered_img
-
-    return NpToQImage(filtered_img)
-
-
 def QImageToNp(img):
     '''  Converts a grascale QImage into np arr'''
 
@@ -258,25 +293,6 @@ def NpToQImage(arr):
     return img
 
 
-def ImpulseNoise(image):
-    np_image = QImageToNp(image)
-    row, col = np_image.shape
-    s_vs_p = 0.5
-    amount = 0.04
-
-    # Salt mode
-    num_salt = np.ceil(amount * np_image.size * s_vs_p)
-    coords = [np.random.randint(0, i - 1, int(num_salt)) for i in np_image.shape]
-    np_image[tuple(coords)] = 255
-
-    # Pepper mode
-    num_pepper = np.ceil(amount * np_image.size * (1. - s_vs_p))
-    coords = [np.random.randint(0, i - 1, int(num_pepper)) for i in np_image.shape]
-    np_image[tuple(coords)] = 0
-
-    return NpToQImage(np_image)
-
-
 FILTERS_DICT = {
     EFilter.No_change: (no_change_f, []),
     EFilter.Blur_box: (blur_box_f, []),
@@ -295,4 +311,6 @@ FILTERS_DICT = {
     EFilter.Roberts_y: (roberts_y, ["size: 2 or 3"]),
     EFilter.Roberts: (roberts, ["size: 2 or 3"]),
     EFilter.Laplace: (laplace, ["value: 4, 8 or 16"]),
+    EFilter.Cross: (cross, []),
+    EFilter.Rectengular: (rectengular, [])
 }

@@ -7,7 +7,7 @@ from PyQt5.QtGui import QImage, QPainter, QPixmap, QIntValidator
 from PyQt5.QtWidgets import (QMainWindow, QHBoxLayout, QVBoxLayout,
                              QApplication, QWidget, QPushButton, QFileDialog,
                              QLineEdit, QPlainTextEdit, QComboBox, QSizePolicy,
-                             QDialog)
+                             QDialog, QFrame)
 
 from linear_filtration import *
 
@@ -133,16 +133,19 @@ class MainWindow(QMainWindow):
     def __LoGButton(self):
         args = self.__createParamsEdits(["Threshold"])
         if args:
-            self.w_res_image.setImage(LaplacianOfGaussian(self.w_in_image.image, *args))
+            self.w_res_image.setImage(
+                LaplacianOfGaussian(self.w_in_image.image, *args))
 
     def __MedianButton(self):
         filter_str_list = self.lin_filt_edit.toPlainText().split(';')
         self.w_res_image.setImage(
-            median(self.w_in_image.image,
-                          self.__QStringToNp(filter_str_list)))
+            median(self.w_in_image.image, self.__QStringToNp(filter_str_list)))
 
     def __ImpulseNoiseButton(self):
         self.w_in_image.setImage(ImpulseNoise(self.w_in_image.image))
+
+    def __CopyToInputButton(self):
+        self.w_in_image.setImage(self.w_res_image.image.copy())
 
     def __setInputImage(self, image_path):
         img = self.__openImage(image_path)
@@ -183,7 +186,25 @@ class MainWindow(QMainWindow):
         h_btns_layout.addWidget(self.c_se_box)
         h_btns_layout.addWidget(self.apply_filt_btn)
 
+        h_median_btns_layout = QHBoxLayout()
+        self.impulse_noise_btn = self.__createButton("Add noise",
+                                                     self.__ImpulseNoiseButton,
+                                                     100)
+        self.Median_btn = self.__createButton("Median", self.__MedianButton,
+                                              240)
+        h_median_btns_layout.addWidget(self.impulse_noise_btn)
+        h_median_btns_layout.addWidget(self.Median_btn)
+
+        h_log_btns_layout = QHBoxLayout()
+        self.LoG_btn = self.__createButton("Laplacian of Gaussian",
+                                           self.__LoGButton, 240)
+        h_log_btns_layout.addWidget(self.LoG_btn)
+
         h_op_btns_layout = QHBoxLayout()
+        divider = QFrame()
+        divider.setFrameShape(QFrame.HLine)
+        divider.setFrameShadow(QFrame.Sunken)
+        h_op_btns_layout.addWidget(divider)
         self.sum_btn = self.__createButton("Sum images",
                                            self.__sumImagesButton, 120)
         h_op_btns_layout.addWidget(self.sum_btn)
@@ -191,23 +212,16 @@ class MainWindow(QMainWindow):
                                                 self.__substractImagesButton,
                                                 120)
         h_op_btns_layout.addWidget(self.subtract_btn)
-
-        h_log_btns_layout = QHBoxLayout()
-        self.impulse_noise_btn = self.__createButton("Add noise",
-                                                     self.__ImpulseNoiseButton,
-                                                     100)
-        self.LoG_btn = self.__createButton("LaplacianOfGaussian",
-                                           self.__LoGButton, 240)
-        self.Median_btn = self.__createButton("Median",
-                                           self.__MedianButton, 240)
-        h_log_btns_layout.addWidget(self.impulse_noise_btn)
-        h_log_btns_layout.addWidget(self.LoG_btn)
-        h_log_btns_layout.addWidget(self.Median_btn)
+        self.copy_to_inp_btn = self.__createButton("Copy to input",
+                                                   self.__CopyToInputButton,
+                                                   120)
+        h_op_btns_layout.addWidget(self.copy_to_inp_btn)
 
         v_layout.addLayout(h_layout)
         v_layout.addLayout(h_btns_layout)
-        v_layout.addLayout(h_op_btns_layout)
+        v_layout.addLayout(h_median_btns_layout)
         v_layout.addLayout(h_log_btns_layout)
+        v_layout.addLayout(h_op_btns_layout)
         v_layout.addStretch()
         return v_layout
 
