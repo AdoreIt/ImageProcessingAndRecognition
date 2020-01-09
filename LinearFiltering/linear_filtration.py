@@ -48,6 +48,7 @@ def gaussian_blur(sigma, h, w):
             y = j - int(h / 2)
             filter[i][j] = 1 / (2 * pi * sigma**2) * exp(-(
                 (x**2 + y**2) / 2 / sigma**2))
+    filter = filter / np.sum(filter)
     return [filter]
 
 
@@ -58,7 +59,9 @@ def sharpening():
 
 def smoothing(radius):
     val = 1 / (2 * int(radius) + 1)**2
-    return [[[val, val, val], [val, val, val], [val, val, val]]]
+    filter = [[val, val, val], [val, val, val], [val, val, val]]
+    filter = filter / np.sum(filter)
+    return [filter]
 
 
 def contrast(value):
