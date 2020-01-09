@@ -204,7 +204,7 @@ class MainWindow(QMainWindow):
         divider = QFrame()
         divider.setFrameShape(QFrame.HLine)
         divider.setFrameShadow(QFrame.Sunken)
-        h_op_btns_layout.addWidget(divider)
+        v_layout.addWidget(divider)
         self.sum_btn = self.__createButton("Sum images",
                                            self.__sumImagesButton, 120)
         h_op_btns_layout.addWidget(self.sum_btn)
