@@ -187,14 +187,17 @@ def LaplacianOfGaussian(image, threshold):
                   [1 / 16., 1 / 8., 1 / 16.]])
     ]
     img = convolve(np_img, gaussian_filter, image.width(), image.height())
+
     L_x = convolve(img, [np.array(sobel_x()[0])], image.width(),
                    image.height())
     L_y = convolve(img, [np.array(sobel_y()[0])], image.width(),
                    image.height())
     L = pow((L_x * L_x + L_y * L_y), 0.5)
     L = (L > threshold) * L
+
     temp_img = convolve(img, [np.array(laplace(16)[0])], image.width(),
                         image.height())
+
     # detect zero crossing by checking values across 8-neighbors on a 3x3 grid
     (M, N) = temp_img.shape
     temp = np.zeros((M + 2, N + 2))
@@ -203,12 +206,8 @@ def LaplacianOfGaussian(image, threshold):
     for i in range(1, M + 1):
         for j in range(1, N + 1):
             if temp[i, j] < 0:
-                for x, y in (-1,
-                             -1), (-1,
-                                   0), (-1,
-                                        1), (0, -1), (0, 1), (1, -1), (1,
-                                                                       0), (1,
-                                                                            1):
+                for x, y in [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1),
+                             (1, -1), (1, 0), (1, 1)]:
                     if temp[i + x, j + y] > 0:
                         img[i - 1, j - 1] = 1
 
@@ -239,6 +238,12 @@ def NpToQImage(arr):
             c = max(0, min(arr[y, x], 255))
             img.setPixel(x, y, qRgb(c, c, c))
     return img
+
+
+def ImpulseNoise(image):
+    np_image = QImageToNp(image)
+    print("noise")
+    return NpToQImage(np_image)
 
 
 FILTERS_DICT = {

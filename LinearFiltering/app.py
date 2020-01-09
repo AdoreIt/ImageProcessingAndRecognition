@@ -135,6 +135,9 @@ class MainWindow(QMainWindow):
         self.w_res_image.setImage(
             LaplacianOfGaussian(self.w_in_image.image, *args))
 
+    def __ImpulseNoiseButton(self):
+        self.w_in_image.setImage(ImpulseNoise(self.w_in_image.image))
+
     def __setInputImage(self, image_path):
         img = self.__openImage(image_path)
         self.w_in_image.setImage(img)
@@ -182,13 +185,20 @@ class MainWindow(QMainWindow):
                                                 self.__substractImagesButton,
                                                 120)
         h_op_btns_layout.addWidget(self.subtract_btn)
+
+        h_log_btns_layout = QHBoxLayout()
+        self.impulse_noise_btn = self.__createButton("Add ImpulseNoise",
+                                                     self.__ImpulseNoiseButton,
+                                                     100)
         self.LoG_btn = self.__createButton("LaplacianOfGaussian",
                                            self.__LoGButton, 240)
-        h_op_btns_layout.addWidget(self.LoG_btn)
+        h_log_btns_layout.addWidget(self.impulse_noise_btn)
+        h_log_btns_layout.addWidget(self.LoG_btn)
 
         v_layout.addLayout(h_layout)
         v_layout.addLayout(h_btns_layout)
         v_layout.addLayout(h_op_btns_layout)
+        v_layout.addLayout(h_log_btns_layout)
         v_layout.addStretch()
         return v_layout
 
