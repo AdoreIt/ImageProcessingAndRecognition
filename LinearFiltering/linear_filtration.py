@@ -13,7 +13,6 @@ class EFilter(Enum):
     Sharpening = "Sharpening"
     Smoothing = "Smoothing"
     Contrast = "Contrast enchantment"
-    Cross = "Cross 5x5"
     Prewitt_x = "Prewitt x"
     Prewitt_y = "Prewitt y"
     Prewitt = "Prewitt"
@@ -72,11 +71,6 @@ def contrast(value):
         return [[[0, -1, 0], [-1, 5, -1], [0, -1, 0]]]
     if value == 9:
         return [[[-1, -1, -1], [-1, 9, -1], [-1, -1, -1]]]
-
-
-def cross():
-    return [[[0, 0, 1, 0, 0], [0, 0, 1, 0, 0], [1, 1, 1, 1, 1],
-             [0, 0, 1, 0, 0], [0, 0, 1, 0, 0]]]
 
 
 def prewitt_x():
@@ -216,6 +210,30 @@ def LaplacianOfGaussian(image, threshold):
     return NpToQImage(LoG)
 
 
+def median(img, apertures):
+    np_img = QImageToNp(img)
+
+    # shape(h,w)
+    np_img = np_img.copy()
+    filtered_img = np.zeros(np_img.shape, int)
+
+    for aperture in apertures:
+        if aperture.size == 0:
+            continue
+
+        padded_img = np.pad(np_img,
+                            pad_width=int((aperture.shape[1] - 1) / 2),
+                            mode='constant',
+                            constant_values=0)
+        for h in range(np_img.shape[0]):
+            for w in range(np_img.shape[1]):
+                reg = padded_img[h:h + aperture.shape[0], w:w + aperture.shape[1]]
+                filtered_img[h, w] = np.median(reg[aperture > 0])
+        np_img = filtered_img
+
+    return NpToQImage(filtered_img)
+
+
 def QImageToNp(img):
     '''  Converts a grascale QImage into np arr'''
 
@@ -267,7 +285,6 @@ FILTERS_DICT = {
     EFilter.Sharpening: (sharpening, []),
     EFilter.Smoothing: (smoothing, ["radius"]),
     EFilter.Contrast: (contrast, ["value: 5 or 9"]),
-    EFilter.Cross: (cross, []),
     EFilter.Prewitt_x: (prewitt_x, []),
     EFilter.Prewitt_y: (prewitt_y, []),
     EFilter.Prewitt: (prewitt, []),

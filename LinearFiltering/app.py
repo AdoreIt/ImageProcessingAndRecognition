@@ -132,8 +132,14 @@ class MainWindow(QMainWindow):
 
     def __LoGButton(self):
         args = self.__createParamsEdits(["Threshold"])
+        if args:
+            self.w_res_image.setImage(LaplacianOfGaussian(self.w_in_image.image, *args))
+
+    def __MedianButton(self):
+        filter_str_list = self.lin_filt_edit.toPlainText().split(';')
         self.w_res_image.setImage(
-            LaplacianOfGaussian(self.w_in_image.image, *args))
+            median(self.w_in_image.image,
+                          self.__QStringToNp(filter_str_list)))
 
     def __ImpulseNoiseButton(self):
         self.w_in_image.setImage(ImpulseNoise(self.w_in_image.image))
@@ -187,13 +193,16 @@ class MainWindow(QMainWindow):
         h_op_btns_layout.addWidget(self.subtract_btn)
 
         h_log_btns_layout = QHBoxLayout()
-        self.impulse_noise_btn = self.__createButton("Add ImpulseNoise",
+        self.impulse_noise_btn = self.__createButton("Add noise",
                                                      self.__ImpulseNoiseButton,
                                                      100)
         self.LoG_btn = self.__createButton("LaplacianOfGaussian",
                                            self.__LoGButton, 240)
+        self.Median_btn = self.__createButton("Median",
+                                           self.__MedianButton, 240)
         h_log_btns_layout.addWidget(self.impulse_noise_btn)
         h_log_btns_layout.addWidget(self.LoG_btn)
+        h_log_btns_layout.addWidget(self.Median_btn)
 
         v_layout.addLayout(h_layout)
         v_layout.addLayout(h_btns_layout)
