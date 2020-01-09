@@ -22,7 +22,7 @@ class FunctionParamsDialog(QDialog):
         self.everything_is_fine = False
 
     def keyPressEvent(self, e):
-        if e.key() == Qt.Key_Return:
+        if e.key() == Qt.Key_Return or e.key() == Qt.Key_Q:
             self.everything_is_fine = True
             self.close()
 
@@ -68,7 +68,7 @@ class MainWindow(QMainWindow):
         w.setLayout(g_layout)
         self.setCentralWidget(w)
 
-        self.w_in_image.setImage(self.__openImage("Images/input_image.jpg"))
+        self.__setInputImage("Images/input_image.jpg")
         self.resize(1200, 500)
         self.setWindowTitle("LinearFiltering")
 
@@ -120,7 +120,11 @@ class MainWindow(QMainWindow):
         fname = QFileDialog.getOpenFileName(caption='Open image',
                                             filter="Image files (*.jpg *.png)")
         if fname[0]:
-            self.w_in_image.setImage(self.__openImage(fname[0]))
+            self.__setInputImage(fname[0])
+
+    def __setInputImage(self, image_path):
+        img = self.__openImage(image_path)
+        self.w_in_image.setImage(img)
 
     def __createImageLayout(self):
         v_layout = QVBoxLayout()
@@ -130,7 +134,7 @@ class MainWindow(QMainWindow):
         return v_layout, w_image
 
     def keyPressEvent(self, e):
-        if e.key() == Qt.Key_Escape:
+        if e.key() == Qt.Key_Escape or e.key() == Qt.Key_Q:
             self.close()
 
     def filterLayout(self):

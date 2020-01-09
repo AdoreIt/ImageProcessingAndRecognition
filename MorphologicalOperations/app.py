@@ -189,7 +189,7 @@ class MainWindow(QMainWindow):
         return v_layout, w_image
 
     def keyPressEvent(self, e):
-        if e.key() == Qt.Key_Escape:
+        if e.key() == Qt.Key_Escape or e.key() == Qt.Key_Q:
             self.close()
 
 

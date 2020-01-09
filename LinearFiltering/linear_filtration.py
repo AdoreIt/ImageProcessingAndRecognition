@@ -53,8 +53,10 @@ def gaussian_blur(sigma, h, w):
 
 
 def sharpening():
-    return [[[-0.88888, -0.88888, -0.88888], [-0.88888, 1.88888, -0.88888],
-             [-0.88888, -0.88888, -0.88888]]]
+    filter = [[-0.88888, -0.88888, -0.88888], [-0.88888, 0.894736, -0.88888],
+              [-0.88888, -0.88888, -0.88888]]
+    filter = filter / np.sum(filter)
+    return [filter]
 
 
 def smoothing(radius):
@@ -125,7 +127,7 @@ def roberts(size):
     return roberts_x(size) + roberts_y(size)
 
 
-def laplase(value):
+def laplace(value):
     value = check_value(int(value), 4, 8)
     if value == 4:
         return [[[0, -1, 0], [-1, 4, -1], [0, -1, 0]]]
@@ -139,33 +141,9 @@ def check_value(value, v_1, v_2):
     return value
 
 
-FILTERS_DICT = {
-    EFilter.No_change: (no_change_f, []),
-    EFilter.Blur_box: (blur_box_f, []),
-    EFilter.Gaussian_blur:
-    (gaussian_blur, ["sigma", "filter height", "filter width"]),
-    EFilter.Sharpening: (sharpening, []),
-    EFilter.Smoothing: (smoothing, ["radius"]),
-    EFilter.Contrast: (contrast, ["value: 5 or 9"]),
-    EFilter.Cross: (cross, []),
-    EFilter.Prewitt_x: (prewitt_x, []),
-    EFilter.Prewitt_y: (prewitt_y, []),
-    EFilter.Prewitt: (prewitt, []),
-    EFilter.Sobel_x: (sobel_x, []),
-    EFilter.Sobel_y: (sobel_y, []),
-    EFilter.Sobel: (sobel, []),
-    EFilter.Roberts_x: (roberts_x, ["size: 2 or 3"]),
-    EFilter.Roberts_y: (roberts_y, ["size: 2 or 3"]),
-    EFilter.Roberts: (roberts, ["size: 2 or 3"]),
-    EFilter.Laplace: (laplase, ["value: 4 or 8"])
-}
-
-
-def linear_filter(image, filters):
+def convolve(np_img, filters, img_w, img_h):
     # shape(h,w)
-    # filtered_img = np.zeros(image.height,image.width)
-    np_img = QImageToNp(image)
-    filtered_img = np.zeros((image.height(), image.width()), int)
+    filtered_img = np.zeros((img_h, img_w), int)
 
     for filter in filters:
         if len(filter) == 0:
@@ -174,13 +152,18 @@ def linear_filter(image, filters):
                             pad_width=int((filter.shape[1] - 1) / 2),
                             mode='constant',
                             constant_values=0)
-        for h in range(image.height()):
-            for w in range(image.width()):
+        for h in range(img_h):
+            for w in range(img_w):
                 filtered_img[h, w] = np.sum(
                     padded_img[h:h + filter.shape[0], w:w + filter.shape[1]] *
                     filter)
         np_img = filtered_img
+    return filtered_img
 
+
+def linear_filter(image, filters):
+    np_img = QImageToNp(image)
+    filtered_img = convolve(np_img, filters, image.width(), image.height())
     return NpToQImage(filtered_img)
 
 
@@ -206,3 +189,25 @@ def NpToQImage(arr):
             c = max(0, min(arr[y, x], 255))
             img.setPixel(x, y, qRgb(c, c, c))
     return img
+
+
+FILTERS_DICT = {
+    EFilter.No_change: (no_change_f, []),
+    EFilter.Blur_box: (blur_box_f, []),
+    EFilter.Gaussian_blur:
+    (gaussian_blur, ["sigma", "filter height", "filter width"]),
+    EFilter.Sharpening: (sharpening, []),
+    EFilter.Smoothing: (smoothing, ["radius"]),
+    EFilter.Contrast: (contrast, ["value: 5 or 9"]),
+    EFilter.Cross: (cross, []),
+    EFilter.Prewitt_x: (prewitt_x, []),
+    EFilter.Prewitt_y: (prewitt_y, []),
+    EFilter.Prewitt: (prewitt, []),
+    EFilter.Sobel_x: (sobel_x, []),
+    EFilter.Sobel_y: (sobel_y, []),
+    EFilter.Sobel: (sobel, []),
+    EFilter.Roberts_x: (roberts_x, ["size: 2 or 3"]),
+    EFilter.Roberts_y: (roberts_y, ["size: 2 or 3"]),
+    EFilter.Roberts: (roberts, ["size: 2 or 3"]),
+    EFilter.Laplace: (laplace, ["value: 4 or 8"]),
+}
