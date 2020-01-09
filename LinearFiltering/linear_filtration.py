@@ -128,6 +128,10 @@ def roberts(size):
 
 
 def laplace(value):
+    if int(value) == 16:
+        return [[[0, 0, 1, 0, 0], [0, 1, 2, 1, 0], [1, 2, -16, 2, 1],
+                 [0, 1, 2, 1, 0], [0, 0, 1, 0, 0]]]
+
     value = check_value(int(value), 4, 8)
     if value == 4:
         return [[[0, -1, 0], [-1, 4, -1], [0, -1, 0]]]
@@ -141,8 +145,9 @@ def check_value(value, v_1, v_2):
     return value
 
 
-def convolve(np_img, filters, img_w, img_h):
+def convolve(np_im, filters, img_w, img_h):
     # shape(h,w)
+    np_img = np_im.copy()
     filtered_img = np.zeros((img_h, img_w), int)
 
     for filter in filters:
@@ -173,6 +178,43 @@ def sum_images(img_1, img_2):
 
 def substract_images(img_1, img_2):
     return NpToQImage(QImageToNp(img_1) - QImageToNp(img_2))
+
+
+def LaplacianOfGaussian(image, threshold):
+    np_img = QImageToNp(image)
+    gaussian_filter = [
+        np.array([[1 / 16., 1 / 8., 1 / 16.], [1 / 8., 1 / 4., 1 / 8.],
+                  [1 / 16., 1 / 8., 1 / 16.]])
+    ]
+    img = convolve(np_img, gaussian_filter, image.width(), image.height())
+    L_x = convolve(img, [np.array(sobel_x()[0])], image.width(),
+                   image.height())
+    L_y = convolve(img, [np.array(sobel_y()[0])], image.width(),
+                   image.height())
+    L = pow((L_x * L_x + L_y * L_y), 0.5)
+    L = (L > threshold) * L
+    temp_img = convolve(img, [np.array(laplace(16)[0])], image.width(),
+                        image.height())
+    # detect zero crossing by checking values across 8-neighbors on a 3x3 grid
+    (M, N) = temp_img.shape
+    temp = np.zeros((M + 2, N + 2))
+    temp[1:-1, 1:-1] = temp_img
+    img = np.zeros((M, N))
+    for i in range(1, M + 1):
+        for j in range(1, N + 1):
+            if temp[i, j] < 0:
+                for x, y in (-1,
+                             -1), (-1,
+                                   0), (-1,
+                                        1), (0, -1), (0, 1), (1, -1), (1,
+                                                                       0), (1,
+                                                                            1):
+                    if temp[i + x, j + y] > 0:
+                        img[i - 1, j - 1] = 1
+
+    LoG = np.array(np.logical_and(img, L))
+    LoG = LoG.astype(float) * 255
+    return NpToQImage(LoG)
 
 
 def QImageToNp(img):
@@ -217,5 +259,5 @@ FILTERS_DICT = {
     EFilter.Roberts_x: (roberts_x, ["size: 2 or 3"]),
     EFilter.Roberts_y: (roberts_y, ["size: 2 or 3"]),
     EFilter.Roberts: (roberts, ["size: 2 or 3"]),
-    EFilter.Laplace: (laplace, ["value: 4 or 8"]),
+    EFilter.Laplace: (laplace, ["value: 4, 8 or 16"]),
 }

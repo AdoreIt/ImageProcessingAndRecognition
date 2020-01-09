@@ -123,12 +123,17 @@ class MainWindow(QMainWindow):
             self.__setInputImage(fname[0])
 
     def __sumImagesButton(self):
-        self.w_res_image.setImage(sum_images(self.w_in_image.image,
-                                             self.w_res_image.image))
+        self.w_res_image.setImage(
+            sum_images(self.w_in_image.image, self.w_res_image.image))
 
     def __substractImagesButton(self):
         self.w_res_image.setImage(
             substract_images(self.w_in_image.image, self.w_res_image.image))
+
+    def __LoGButton(self):
+        args = self.__createParamsEdits(["Threshold"])
+        self.w_res_image.setImage(
+            LaplacianOfGaussian(self.w_in_image.image, *args))
 
     def __setInputImage(self, image_path):
         img = self.__openImage(image_path)
@@ -177,6 +182,9 @@ class MainWindow(QMainWindow):
                                                 self.__substractImagesButton,
                                                 120)
         h_op_btns_layout.addWidget(self.subtract_btn)
+        self.LoG_btn = self.__createButton("LaplacianOfGaussian",
+                                           self.__LoGButton, 240)
+        h_op_btns_layout.addWidget(self.LoG_btn)
 
         v_layout.addLayout(h_layout)
         v_layout.addLayout(h_btns_layout)
